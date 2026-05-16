@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  fullName     String
+  phone        String
+  role         String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  driverProfile      DriverProfile?
+  bookingsAsCustomer Booking[]      @relation("CustomerBookings")
+  sessions           Session[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model DriverProfile {
+  id                 String    @id @default(cuid())
+  userId             String    @unique
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verificationStatus String    @default("PENDING")
+  idNumber           String?
+  licenseNumber      String?
+  province           String?
+  city               String?
+  bio                String?
+  loadPreference     String    @default("ANY")
+  isAvailable        Boolean   @default(false)
+  reviewedAt         DateTime?
+  reviewNotes        String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  vehicles Vehicle[]
+  bookings Booking[] @relation("DriverBookings")
+}
+
+model Vehicle {
+  id              String        @id @default(cuid())
+  driverProfileId String
+  driverProfile   DriverProfile @relation(fields: [driverProfileId], references: [id], onDelete: Cascade)
+  type            String
+  make            String?
+  model           String?
+  registration    String
+  maxWeightKg     Int?
+  maxVolumeM3     Float?
+  hasTrailer      Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+}
+
+model Booking {
+  id         String         @id @default(cuid())
+  reference  String         @unique
+  customerId String
+  customer   User           @relation("CustomerBookings", fields: [customerId], references: [id])
+  driverId   String?
+  driver     DriverProfile? @relation("DriverBookings", fields: [driverId], references: [id])
+  status     String         @default("SEARCHING_DRIVER")
+
+  pickupAddress   String
+  pickupCity      String
+  pickupProvince  String
+  dropoffAddress  String
+  dropoffCity     String
+  dropoffProvince String
+
+  vehicleType      String
+  cargoDescription String
+  weightKg         Int?
+  estimatedPrice   Float
+  currency         String @default("ZAR")
+
+  scheduledAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}

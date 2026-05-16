@@ -1,0 +1,46 @@
+import type {
+  BookingStatus,
+  LoadPreference,
+  UserRole,
+  VehicleType,
+  VerificationStatus,
+} from "@/lib/types";
+
+export const verificationLabels: Record<VerificationStatus, string> = {
+  PENDING: "Pending submission",
+  UNDER_REVIEW: "Under review",
+  APPROVED: "Verified",
+  REJECTED: "Not approved",
+};
+
+export const bookingStatusLabels: Record<BookingStatus, string> = {
+  SEARCHING_DRIVER: "Finding driver",
+  DRIVER_ASSIGNED: "Driver assigned",
+  PICKED_UP: "Picked up",
+  IN_TRANSIT: "In transit",
+  DELIVERED: "Delivered",
+  CANCELLED: "Cancelled",
+};
+
+export const vehicleTypeLabels: Record<VehicleType, string> = {
+  MOTORCYCLE: "Motorcycle",
+  BAKKIE: "Bakkie",
+  PANEL_VAN: "Panel van",
+  LIGHT_TRUCK: "Light truck",
+  MEDIUM_TRUCK: "Medium truck",
+  HEAVY_TRUCK: "Heavy truck",
+  TRAILER_COMBO: "Truck + trailer",
+  OTHER: "Other",
+};
+
+export const loadPreferenceLabels: Record<LoadPreference, string> = {
+  ANY: "Any load",
+  EMPTY_RETURN_ONLY: "Empty return",
+  FULL_LOAD_ONLY: "Full loads only",
+};
+
+export const roleLabels: Record<UserRole, string> = {
+  CUSTOMER: "Customer",
+  DRIVER: "Driver",
+  ADMIN: "Admin",
+};

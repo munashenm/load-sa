@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Load SA
 
-## Getting Started
+Nationwide delivery marketplace for South Africa — like Bolt, but for freight. Customers book moves; verified drivers (bakkies, panel vans, light to heavy trucks, empty returns) accept jobs across all 9 provinces.
 
-First, run the development server:
+## Features
+
+- **Customers**: Register, book pickup/drop-off anywhere in SA, get ZAR fare estimates, track booking status
+- **Drivers**: Register, submit ID/licence/vehicle verification, go available, browse and accept open jobs
+- **Admin**: Review and approve/reject driver applications
+- **Vehicle types**: Motorcycle through truck + trailer; empty-return preference for backhaul drivers
+
+## Deploy online (Railway + GitHub)
+
+See **[DEPLOY.md](./DEPLOY.md)** for step-by-step: push to GitHub → Railway → public URL.
+
+## Quick start (local)
+
+Requires **PostgreSQL** (see `.env.example`). Example with Docker:
 
 ```bash
+cd zim-sa-delivery
+docker run --name loadsa-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=loadsa -p 5432:5432 -d postgres:16
+copy .env.example .env
+npm install
+npm run db:migrate
+npm run db:seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Demo accounts (password: `demo12345`)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Role     | Email                 |
+|----------|------------------------|
+| Admin    | admin@loadsa.co.za     |
+| Customer | customer@demo.co.za  |
+| Driver   | driver@demo.co.za      |
 
-## Learn More
+## Stack
 
-To learn more about Next.js, take a look at the following resources:
+- Next.js 16 (App Router), TypeScript, Tailwind CSS v4
+- Prisma + PostgreSQL (Railway-ready)
+- Session cookies, bcrypt passwords
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Production notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Set `SESSION_SECRET` to a long random string
+- Use PostgreSQL: update `DATABASE_URL` in `.env` and `provider` in `prisma/schema.prisma`
+- Add document upload (S3/Azure Blob) for licence/ID photos
+- Integrate maps (Google/OSM) for real distance pricing and live tracking
+- POPIA: privacy policy, data retention, driver consent flows
 
-## Deploy on Vercel
+## Project structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/app/          Pages (landing, auth, book, driver hub, admin)
+src/app/api/      REST API routes
+src/components/   UI forms and panels
+src/lib/          Auth, SA data, pricing, validations
+prisma/           Schema and seed
+```
