@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Truck } from "lucide-react";
+import { logoutAction } from "@/app/actions/auth";
 import { getSessionUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 
@@ -44,7 +45,7 @@ export async function SiteHeader() {
                   Book delivery
                 </Link>
               ) : null}
-              <form action="/api/auth/logout" method="GET">
+              <form action={logoutAction}>
                 <Button
                   type="submit"
                   variant="ghost"

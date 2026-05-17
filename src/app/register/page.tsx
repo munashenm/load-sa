@@ -1,17 +1,8 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { AuthForm } from "@/components/auth-form";
 
-export default function RegisterPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ role?: string }>;
-}) {
-  return (
-    <RegisterContent searchParams={searchParams} />
-  );
-}
-
-async function RegisterContent({
+export default async function RegisterPage({
   searchParams,
 }: {
   searchParams: Promise<{ role?: string }>;
@@ -29,12 +20,14 @@ async function RegisterContent({
       <h1 className="text-2xl font-bold text-white">Get started</h1>
       <p className="mt-2 text-slate-400">
         {hint}{" "}
-        <Link href="/login" className="text-amber-400 hover:underline">
+        <Link href="/login?next=/book" className="text-amber-400 hover:underline">
           Sign in
         </Link>
       </p>
       <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
-        <AuthForm mode="register" />
+        <Suspense fallback={<p className="text-slate-400">Loading…</p>}>
+          <AuthForm mode="register" />
+        </Suspense>
       </div>
     </div>
   );

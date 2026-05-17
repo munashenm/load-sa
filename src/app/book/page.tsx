@@ -8,7 +8,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { BookingActions } from "@/components/customer/booking-actions";
 
 export default async function BookPage() {
-  const user = await requireUser(["CUSTOMER"]);
+  const user = await requireUser(["CUSTOMER"], "/book");
 
   const bookings = await db.booking.findMany({
     where: { customerId: user.id },

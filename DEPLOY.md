@@ -54,10 +54,11 @@ Railway injects `DATABASE_URL` automatically when referenced.
 
 On the **web service** (not the database), add:
 
-| Variable          | Value |
-|-------------------|--------|
-| `SESSION_SECRET`  | Long random string (32+ chars). Generate: `openssl rand -hex 32` |
-| `NODE_ENV`        | `production` |
+| Variable               | Value |
+|------------------------|--------|
+| `SESSION_SECRET`       | Long random string (32+ chars). Generate: `openssl rand -hex 32` |
+| `NODE_ENV`             | `production` |
+| `NEXT_PUBLIC_APP_URL`  | Your public Railway URL, e.g. `https://load-sa-production.up.railway.app` (not `localhost`) |
 
 Optional (first deploy only, then delete):
 

@@ -1,14 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { FieldError, Input, Label } from "@/components/ui/input";
 
 type Mode = "login" | "register";
 
+function safeNextPath(next: string | null): string | null {
+  if (!next || !next.startsWith("/") || next.startsWith("//")) return null;
+  return next;
+}
+
+function pathForRole(role: string, next: string | null): string {
+  const safe = safeNextPath(next);
+  if (safe) return safe;
+  if (role === "DRIVER") return "/driver";
+  if (role === "ADMIN") return "/admin";
+  return "/book";
+}
+
 export function AuthForm({ mode }: { mode: Mode }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -50,11 +65,13 @@ export function AuthForm({ mode }: { mode: Mode }) {
       return;
     }
 
-    if (data.user.role === "DRIVER") {
-      router.push("/driver");
-    } else {
-      router.push("/book");
+    const dest = pathForRole(data.user.role, next);
+    if (data.user.role !== "CUSTOMER" && safeNextPath(next) === "/book") {
+      setError("Book deliveries with a customer account. Drivers use the driver hub.");
+      return;
     }
+
+    router.push(dest);
     router.refresh();
   }
 
@@ -76,6 +93,9 @@ export function AuthForm({ mode }: { mode: Mode }) {
               id="role"
               name="role"
               required
+              defaultValue={
+                searchParams.get("role") === "driver" ? "DRIVER" : "CUSTOMER"
+              }
               className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-2.5 text-sm text-slate-100"
             >
               <option value="CUSTOMER">Customer — book a delivery</option>

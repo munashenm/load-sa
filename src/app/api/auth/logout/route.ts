@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { getRequestOrigin } from "@/lib/app-url";
 import {
   SESSION_COOKIE,
   applySessionClear,
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
   await revokeSessionFromToken(token);
   await revokeSessionFromToken(legacyToken);
 
-  const response = NextResponse.redirect(new URL("/", request.url));
+  const response = NextResponse.redirect(new URL("/", getRequestOrigin(request)));
   applySessionClear(response);
   return response;
 }

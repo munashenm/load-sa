@@ -59,13 +59,20 @@ export async function getSessionUser(): Promise<
   return getUserFromToken(token);
 }
 
-export async function requireUser(roles?: UserRole[]) {
+function homeForRole(role: string): string {
+  if (role === "DRIVER") return "/driver";
+  if (role === "ADMIN") return "/admin";
+  return "/book";
+}
+
+export async function requireUser(roles?: UserRole[], loginNext?: string) {
   const user = await getSessionUser();
   if (!user) {
-    redirect("/login");
+    const next = loginNext ? `?next=${encodeURIComponent(loginNext)}` : "";
+    redirect(`/login${next}`);
   }
   if (roles && !roles.includes(user.role as UserRole)) {
-    redirect(user.role === "DRIVER" ? "/driver" : "/book");
+    redirect(homeForRole(user.role));
   }
   return user;
 }
@@ -114,6 +121,13 @@ export async function clearSessionCookie(): Promise<void> {
   const legacyToken = cookieStore.get(LEGACY_SESSION_COOKIE)?.value;
   await revokeSessionFromToken(token);
   await revokeSessionFromToken(legacyToken);
-  cookieStore.delete(SESSION_COOKIE);
-  cookieStore.delete(LEGACY_SESSION_COOKIE);
+  for (const name of [SESSION_COOKIE, LEGACY_SESSION_COOKIE]) {
+    cookieStore.set(name, "", {
+      maxAge: 0,
+      path: "/",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+  }
 }
