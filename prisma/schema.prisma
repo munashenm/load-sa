@@ -88,7 +88,11 @@ model Booking {
 
   vehicleType      String
   cargoDescription String
+  cargoSize        String?
+  cargoDimensions  String?
+  cargoImageUrl    String?
   weightKg         Int?
+  urgency          String  @default("STANDARD")
   estimatedPrice   Float
   finalPrice       Float?
   currency         String @default("ZAR")

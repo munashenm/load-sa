@@ -59,6 +59,8 @@ export async function POST(request: Request) {
     data.pickupProvince,
     data.dropoffProvince,
     data.weightKg,
+    data.urgency,
+    data.cargoSize,
   );
 
   const booking = await db.booking.create({
@@ -73,7 +75,11 @@ export async function POST(request: Request) {
       dropoffProvince: data.dropoffProvince,
       vehicleType: data.vehicleType,
       cargoDescription: data.cargoDescription,
+      cargoSize: data.cargoSize,
+      cargoDimensions: data.cargoDimensions || undefined,
+      cargoImageUrl: data.cargoImageUrl || undefined,
       weightKg: data.weightKg,
+      urgency: data.urgency,
       estimatedPrice,
       scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : undefined,
     },

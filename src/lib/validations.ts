@@ -34,8 +34,26 @@ export const bookingSchema = z.object({
     "OTHER",
   ]),
   cargoDescription: z.string().min(10, "Describe what needs to move"),
+  cargoSize: z.enum(["SMALL", "MEDIUM", "LARGE", "OVERSIZED"]).optional(),
+  cargoDimensions: z.string().max(120).optional(),
+  cargoImageUrl: z
+    .string()
+    .optional()
+    .transform((v) => (v && v.startsWith("http") ? v : undefined)),
   weightKg: z.coerce.number().int().positive().optional(),
+  urgency: z.enum(["STANDARD", "SAME_DAY", "EXPRESS"]).default("STANDARD"),
   scheduledAt: z.string().optional(),
+});
+
+export const bookingStatusUpdateSchema = z.object({
+  status: z.enum([
+    "SEARCHING_DRIVER",
+    "DRIVER_ASSIGNED",
+    "PICKED_UP",
+    "IN_TRANSIT",
+    "DELIVERED",
+    "CANCELLED",
+  ]),
 });
 
 export const driverProfileSchema = z.object({

@@ -38,12 +38,20 @@ export async function SiteHeader() {
                   Driver hub
                 </Link>
               ) : user.role === "CUSTOMER" ? (
-                <Link
-                  href="/book"
-                  className="hidden text-sm text-slate-300 hover:text-white sm:block"
-                >
-                  Book delivery
-                </Link>
+                <>
+                  <Link
+                    href="/customer"
+                    className="hidden text-sm text-slate-300 hover:text-white sm:block"
+                  >
+                    My bookings
+                  </Link>
+                  <Link
+                    href="/book"
+                    className="hidden text-sm text-slate-300 hover:text-white sm:block"
+                  >
+                    New booking
+                  </Link>
+                </>
               ) : null}
               <form action={logoutAction}>
                 <Button

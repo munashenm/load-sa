@@ -1,4 +1,4 @@
-import type { LoadPreference, VehicleType } from "@/lib/types";
+import type { CargoSize, DeliveryUrgency, LoadPreference, VehicleType } from "@/lib/types";
 
 export const SA_PROVINCES = [
   "Eastern Cape",
@@ -80,6 +80,27 @@ export const VEHICLE_OPTIONS: {
     description: "Custom vehicle — describe in booking notes",
     maxWeightKg: 5000,
   },
+];
+
+export const CARGO_SIZE_OPTIONS: {
+  value: CargoSize;
+  label: string;
+  description: string;
+}[] = [
+  { value: "SMALL", label: "Small", description: "Parcels, boxes, single items" },
+  { value: "MEDIUM", label: "Medium", description: "Furniture, multiple pallets" },
+  { value: "LARGE", label: "Large", description: "Full vehicle load" },
+  { value: "OVERSIZED", label: "Oversized", description: "Machinery, abnormal load" },
+];
+
+export const URGENCY_OPTIONS: {
+  value: DeliveryUrgency;
+  label: string;
+  description: string;
+}[] = [
+  { value: "STANDARD", label: "Standard", description: "Flexible pickup within 1–3 days" },
+  { value: "SAME_DAY", label: "Same day", description: "Pickup and delivery today" },
+  { value: "EXPRESS", label: "Express", description: "Highest priority — ASAP" },
 ];
 
 export const LOAD_PREFERENCE_OPTIONS: {

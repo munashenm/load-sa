@@ -1,5 +1,7 @@
 import type {
   BookingStatus,
+  CargoSize,
+  DeliveryUrgency,
   LoadPreference,
   UserRole,
   VehicleType,
@@ -43,4 +45,17 @@ export const roleLabels: Record<UserRole, string> = {
   CUSTOMER: "Customer",
   DRIVER: "Driver",
   ADMIN: "Admin",
+};
+
+export const cargoSizeLabels: Record<CargoSize, string> = {
+  SMALL: "Small (fits in car boot)",
+  MEDIUM: "Medium (bakkie load)",
+  LARGE: "Large (full truck load)",
+  OVERSIZED: "Oversized / special handling",
+};
+
+export const urgencyLabels: Record<DeliveryUrgency, string> = {
+  STANDARD: "Standard (1–3 days)",
+  SAME_DAY: "Same day",
+  EXPRESS: "Express (ASAP)",
 };

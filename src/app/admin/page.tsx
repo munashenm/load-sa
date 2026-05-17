@@ -3,10 +3,11 @@ import { db } from "@/lib/db";
 import { formatZAR } from "@/lib/sa-data";
 
 export default async function AdminOverviewPage() {
-  const [orders, paid, drivers, openDisputes, openTickets] = await Promise.all([
+  const [orders, paid, drivers, users, openDisputes, openTickets] = await Promise.all([
     db.booking.count(),
     db.booking.count({ where: { paymentStatus: "PAID" } }),
     db.driverProfile.count({ where: { verificationStatus: "APPROVED" } }),
+    db.user.count(),
     db.dispute.count({ where: { status: "OPEN" } }),
     db.supportTicket.count({ where: { status: "OPEN" } }),
   ]);
@@ -19,6 +20,7 @@ export default async function AdminOverviewPage() {
   const stats = [
     { label: "Total orders", value: orders, href: "/admin/orders" },
     { label: "Paid orders", value: paid, href: "/admin/orders" },
+    { label: "Users", value: users, href: "/admin/users" },
     { label: "Active drivers", value: drivers, href: "/admin/drivers" },
     { label: "Open disputes", value: openDisputes, href: "/admin/disputes" },
     { label: "Support tickets", value: openTickets, href: "/admin/support" },

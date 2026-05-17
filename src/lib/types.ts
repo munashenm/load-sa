@@ -14,6 +14,8 @@ export type VehicleType =
   | "TRAILER_COMBO"
   | "OTHER";
 export type LoadPreference = "ANY" | "EMPTY_RETURN_ONLY" | "FULL_LOAD_ONLY";
+export type CargoSize = "SMALL" | "MEDIUM" | "LARGE" | "OVERSIZED";
+export type DeliveryUrgency = "STANDARD" | "SAME_DAY" | "EXPRESS";
 export type BookingStatus =
   | "SEARCHING_DRIVER"
   | "DRIVER_ASSIGNED"

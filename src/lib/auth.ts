@@ -62,7 +62,7 @@ export async function getSessionUser(): Promise<
 function homeForRole(role: string): string {
   if (role === "DRIVER") return "/driver";
   if (role === "ADMIN") return "/admin";
-  return "/book";
+  return "/customer";
 }
 
 export async function requireUser(roles?: UserRole[], loginNext?: string) {

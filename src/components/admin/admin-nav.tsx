@@ -11,12 +11,14 @@ import {
   Percent,
   Scale,
   Truck,
+  UserCircle,
   Wallet,
 } from "lucide-react";
 
 const links = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
-  { href: "/admin/orders", label: "Orders", icon: Package },
+  { href: "/admin/orders", label: "Bookings", icon: Package },
+  { href: "/admin/users", label: "Users", icon: UserCircle },
   { href: "/admin/commissions", label: "Commissions", icon: Percent },
   { href: "/admin/payouts", label: "Payouts", icon: Wallet },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },

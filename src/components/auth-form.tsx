@@ -17,7 +17,7 @@ function pathForRole(role: string, next: string | null): string {
   if (safe) return safe;
   if (role === "DRIVER") return "/driver";
   if (role === "ADMIN") return "/admin";
-  return "/book";
+  return "/customer";
 }
 
 export function AuthForm({ mode }: { mode: Mode }) {
