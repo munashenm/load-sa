@@ -4,5 +4,14 @@ branch=$(git symbolic-ref --short HEAD 2>/dev/null)
 if [ -z "$branch" ]; then
   exit 0
 fi
+if ! git remote get-url origin >/dev/null 2>&1; then
+  echo "post-commit: no origin remote — skip push"
+  exit 0
+fi
 echo "post-commit: pushing to origin/$branch ..."
-git push origin "$branch"
+if git push origin "$branch"; then
+  echo "post-commit: pushed to GitHub"
+else
+  echo "post-commit: push failed (commit is still local). Run: git push origin $branch"
+  exit 0
+fi

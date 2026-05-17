@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionUserFromRequest } from "@/lib/auth-request";
 import { db } from "@/lib/db";
-import { estimateBookingPrice, generateBookingReference } from "@/lib/pricing";
+import { estimateBookingPriceFromDb, generateBookingReference } from "@/lib/pricing";
 import { bookingSchema } from "@/lib/validations";
 
 export async function GET(request: Request) {
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
   }
 
   const data = parsed.data;
-  const estimatedPrice = estimateBookingPrice(
+  const estimatedPrice = await estimateBookingPriceFromDb(
     data.vehicleType,
     data.pickupProvince,
     data.dropoffProvince,

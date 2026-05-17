@@ -1,26 +1,10 @@
+import {
+  DEFAULT_PRICING_CONFIG,
+  getPricingConfig,
+  urgencyMultiplier,
+  type PricingConfig,
+} from "@/lib/pricing-config";
 import type { DeliveryUrgency, VehicleType } from "@/lib/types";
-
-const BASE_FARE: Record<VehicleType, number> = {
-  MOTORCYCLE: 85,
-  BAKKIE: 350,
-  PANEL_VAN: 450,
-  LIGHT_TRUCK: 1200,
-  MEDIUM_TRUCK: 2800,
-  HEAVY_TRUCK: 5500,
-  TRAILER_COMBO: 8500,
-  OTHER: 600,
-};
-
-const PER_KM_RATE: Record<VehicleType, number> = {
-  MOTORCYCLE: 6,
-  BAKKIE: 12,
-  PANEL_VAN: 14,
-  LIGHT_TRUCK: 22,
-  MEDIUM_TRUCK: 35,
-  HEAVY_TRUCK: 48,
-  TRAILER_COMBO: 58,
-  OTHER: 18,
-};
 
 /** Rough distance estimate from province pair (national coverage MVP). */
 export function estimateDistanceKm(
@@ -45,12 +29,6 @@ export function estimateDistanceKm(
   return 650;
 }
 
-const URGENCY_MULTIPLIER: Record<DeliveryUrgency, number> = {
-  STANDARD: 1,
-  SAME_DAY: 1.25,
-  EXPRESS: 1.45,
-};
-
 const SIZE_MULTIPLIER: Record<string, number> = {
   SMALL: 1,
   MEDIUM: 1.05,
@@ -58,7 +36,8 @@ const SIZE_MULTIPLIER: Record<string, number> = {
   OVERSIZED: 1.25,
 };
 
-export function estimateBookingPrice(
+function computePrice(
+  config: PricingConfig,
   vehicleType: VehicleType,
   pickupProvince: string,
   dropoffProvince: string,
@@ -67,18 +46,59 @@ export function estimateBookingPrice(
   cargoSize?: string | null,
 ): number {
   const km = estimateDistanceKm(pickupProvince, dropoffProvince);
-  let price = BASE_FARE[vehicleType] + PER_KM_RATE[vehicleType] * km;
+  const rates = config.vehicleRates[vehicleType];
+  let price = rates.base + rates.perKm * km + config.baseFee * 0.1;
 
   if (weightKg && weightKg > 5000) {
     price *= 1.15;
   }
 
-  price *= URGENCY_MULTIPLIER[urgency] ?? 1;
+  price *= urgencyMultiplier(urgency, config);
   if (cargoSize && SIZE_MULTIPLIER[cargoSize]) {
     price *= SIZE_MULTIPLIER[cargoSize];
   }
 
   return Math.round(price / 10) * 10;
+}
+
+export function estimateBookingPrice(
+  vehicleType: VehicleType,
+  pickupProvince: string,
+  dropoffProvince: string,
+  weightKg?: number | null,
+  urgency: DeliveryUrgency = "STANDARD",
+  cargoSize?: string | null,
+  config: PricingConfig = DEFAULT_PRICING_CONFIG,
+): number {
+  return computePrice(
+    config,
+    vehicleType,
+    pickupProvince,
+    dropoffProvince,
+    weightKg,
+    urgency,
+    cargoSize,
+  );
+}
+
+export async function estimateBookingPriceFromDb(
+  vehicleType: VehicleType,
+  pickupProvince: string,
+  dropoffProvince: string,
+  weightKg?: number | null,
+  urgency: DeliveryUrgency = "STANDARD",
+  cargoSize?: string | null,
+): Promise<number> {
+  const config = await getPricingConfig();
+  return computePrice(
+    config,
+    vehicleType,
+    pickupProvince,
+    dropoffProvince,
+    weightKg,
+    urgency,
+    cargoSize,
+  );
 }
 
 export function generateBookingReference(): string {

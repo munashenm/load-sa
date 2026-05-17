@@ -13,9 +13,10 @@ model User {
   passwordHash String
   fullName     String
   phone        String
-  role         String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  role          String
+  accountStatus String   @default("ACTIVE")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   driverProfile      DriverProfile?
   bookingsAsCustomer Booking[]       @relation("CustomerBookings")
@@ -45,6 +46,7 @@ model DriverProfile {
   bio                String?
   loadPreference     String    @default("ANY")
   isAvailable        Boolean   @default(false)
+  accountStatus      String    @default("ACTIVE")
   reviewedAt         DateTime?
   reviewNotes        String?
   createdAt          DateTime  @default(now())
@@ -146,9 +148,14 @@ model Payout {
 }
 
 model PlatformSettings {
-  id                 String   @id @default("default")
-  commissionPercent  Float    @default(15)
-  updatedAt          DateTime @default(now()) @updatedAt
+  id                  String   @id @default("default")
+  commissionPercent   Float    @default(15)
+  baseFee             Float    @default(350)
+  pricePerKm          Float    @default(12)
+  sameDaySurchargePct Float    @default(25)
+  expressSurchargePct Float    @default(45)
+  vehicleRatesJson    String?
+  updatedAt           DateTime @default(now()) @updatedAt
 }
 
 model DeliveryProof {

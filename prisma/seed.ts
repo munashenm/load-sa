@@ -6,10 +6,19 @@ const db = new PrismaClient();
 async function main() {
   const passwordHash = await bcrypt.hash("demo12345", 12);
 
+  const { DEFAULT_PRICING_CONFIG } = await import("../src/lib/pricing-config");
   await db.platformSettings.upsert({
     where: { id: "default" },
     update: {},
-    create: { id: "default", commissionPercent: 15 },
+    create: {
+      id: "default",
+      commissionPercent: 15,
+      baseFee: DEFAULT_PRICING_CONFIG.baseFee,
+      pricePerKm: DEFAULT_PRICING_CONFIG.pricePerKm,
+      sameDaySurchargePct: DEFAULT_PRICING_CONFIG.sameDaySurchargePct,
+      expressSurchargePct: DEFAULT_PRICING_CONFIG.expressSurchargePct,
+      vehicleRatesJson: JSON.stringify(DEFAULT_PRICING_CONFIG.vehicleRates),
+    },
   });
 
   await db.user.upsert({

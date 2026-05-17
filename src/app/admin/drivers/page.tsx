@@ -1,52 +1,35 @@
+import { DriversTable, type AdminDriverRow } from "@/components/admin/drivers-table";
 import { db } from "@/lib/db";
-import { AdminDriverActions } from "@/components/admin-driver-actions";
 
 export default async function AdminDriversPage() {
-  const pending = await db.driverProfile.findMany({
-    where: { verificationStatus: "UNDER_REVIEW" },
-    include: {
-      user: { select: { fullName: true, email: true, phone: true } },
-      vehicles: true,
-    },
+  const profiles = await db.driverProfile.findMany({
     orderBy: { updatedAt: "desc" },
+    include: {
+      user: { select: { fullName: true, phone: true, email: true } },
+      vehicles: { take: 1 },
+      _count: { select: { bookings: true } },
+    },
   });
 
-  const approved = await db.driverProfile.count({
-    where: { verificationStatus: "APPROVED" },
-  });
+  const rows: AdminDriverRow[] = profiles.map((p) => ({
+    id: p.id,
+    verificationStatus: p.verificationStatus,
+    accountStatus: p.accountStatus,
+    isAvailable: p.isAvailable,
+    user: p.user,
+    vehicleType: p.vehicles[0]?.type ?? null,
+    jobCount: p._count.bookings,
+  }));
 
   return (
     <div>
       <h1 className="text-2xl font-bold text-white">Drivers</h1>
       <p className="mt-2 text-slate-400">
-        {pending.length} pending verification · {approved} approved
+        Approve, reject, suspend, or activate drivers on the platform.
       </p>
-
-      <ul className="mt-8 space-y-4">
-        {pending.map((p) => (
-          <li
-            key={p.id}
-            className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5"
-          >
-            <p className="font-semibold text-white">{p.user.fullName}</p>
-            <p className="text-sm text-slate-400">
-              {p.user.email} · {p.user.phone}
-            </p>
-            <p className="mt-2 text-sm text-slate-300">
-              {p.city}, {p.province} · ID {p.idNumber}
-            </p>
-            {p.vehicles[0] && (
-              <p className="mt-1 text-sm text-slate-500">
-                {p.vehicles[0].registration} ({p.vehicles[0].type})
-              </p>
-            )}
-            <AdminDriverActions profileId={p.id} />
-          </li>
-        ))}
-        {pending.length === 0 && (
-          <p className="text-slate-500">No drivers awaiting review.</p>
-        )}
-      </ul>
+      <div className="mt-6">
+        <DriversTable drivers={rows} />
+      </div>
     </div>
   );
 }
