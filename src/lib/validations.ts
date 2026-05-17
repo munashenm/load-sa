@@ -25,6 +25,7 @@ export const bookingSchema = z.object({
   dropoffProvince: provinceEnum,
   vehicleType: z.enum([
     "MOTORCYCLE",
+    "CAR",
     "BAKKIE",
     "PANEL_VAN",
     "LIGHT_TRUCK",
@@ -49,11 +50,30 @@ export const bookingStatusUpdateSchema = z.object({
   status: z.enum([
     "SEARCHING_DRIVER",
     "DRIVER_ASSIGNED",
+    "EN_ROUTE_PICKUP",
     "PICKED_UP",
     "IN_TRANSIT",
+    "NEAR_DESTINATION",
     "DELIVERED",
     "CANCELLED",
   ]),
+});
+
+export const driverBankSchema = z.object({
+  bankAccountHolder: z.string().min(2).optional(),
+  bankName: z.string().min(2).optional(),
+  bankAccountNumber: z.string().min(4).optional(),
+  bankBranchCode: z.string().min(4).optional(),
+});
+
+const docUrl = z.string().url().optional().or(z.literal(""));
+
+export const driverDocumentsSchema = z.object({
+  idDocumentUrl: docUrl,
+  licenseDocumentUrl: docUrl,
+  proofOfAddressUrl: docUrl,
+  vehicleRegistrationUrl: docUrl,
+  vehiclePhotosJson: z.string().optional(),
 });
 
 export const driverProfileSchema = z.object({
@@ -68,6 +88,7 @@ export const driverProfileSchema = z.object({
 export const vehicleSchema = z.object({
   type: z.enum([
     "MOTORCYCLE",
+    "CAR",
     "BAKKIE",
     "PANEL_VAN",
     "LIGHT_TRUCK",
@@ -81,4 +102,8 @@ export const vehicleSchema = z.object({
   registration: z.string().min(3, "Vehicle registration required"),
   maxWeightKg: z.coerce.number().int().positive().optional(),
   hasTrailer: z.coerce.boolean().optional(),
+});
+
+export const driverVehicleExtendedSchema = vehicleSchema.extend({
+  insuranceStatus: z.enum(["INSURED", "PENDING", "NOT_INSURED"]).optional(),
 });

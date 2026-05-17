@@ -6,6 +6,7 @@ export type VerificationStatus =
   | "REJECTED";
 export type VehicleType =
   | "MOTORCYCLE"
+  | "CAR"
   | "BAKKIE"
   | "PANEL_VAN"
   | "LIGHT_TRUCK"
@@ -19,8 +20,10 @@ export type DeliveryUrgency = "STANDARD" | "SAME_DAY" | "EXPRESS";
 export type BookingStatus =
   | "SEARCHING_DRIVER"
   | "DRIVER_ASSIGNED"
+  | "EN_ROUTE_PICKUP"
   | "PICKED_UP"
   | "IN_TRANSIT"
+  | "NEAR_DESTINATION"
   | "DELIVERED"
   | "CANCELLED";
 

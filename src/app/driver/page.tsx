@@ -1,122 +1,144 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { AvailabilityToggle } from "@/components/availability-toggle";
-import { DriverJobs } from "@/components/driver-jobs";
-import { ActiveJobPanel } from "@/components/driver/active-job-panel";
-import { StatusBadge } from "@/components/status-badge";
+import { DriverOnlineToggle } from "@/components/driver/driver-online-toggle";
 import { requireUser } from "@/lib/auth";
+import {
+  canGoOnline,
+  getAvailableJobsForDriver,
+  getDriverEarningsStats,
+  getDriverProfileForUser,
+  primaryVehicleType,
+  verificationDisplay,
+} from "@/lib/driver-portal";
 import { db } from "@/lib/db";
-import { verificationLabels } from "@/lib/labels";
+import { formatZAR } from "@/lib/sa-data";
 import type { VerificationStatus } from "@/lib/types";
 
-export default async function DriverPage() {
-  const user = await requireUser(["DRIVER"]);
-
-  const profile = await db.driverProfile.findUnique({
-    where: { userId: user.id },
-    include: { vehicles: true },
-  });
-
-  if (!profile) {
-    redirect("/register");
-  }
-
-  const status = profile.verificationStatus as VerificationStatus;
-  const toneMap: Record<
-    VerificationStatus,
-    "amber" | "green" | "red" | "blue" | "slate"
-  > = {
-    PENDING: "slate",
-    UNDER_REVIEW: "amber",
-    APPROVED: "green",
-    REJECTED: "red",
-  };
-
-  const openJobs = await db.booking.findMany({
-    where: { status: "SEARCHING_DRIVER" },
-    orderBy: { createdAt: "desc" },
-    take: 20,
-  });
-
-  const myJobs = await db.booking.findMany({
-    where: { driverId: profile.id },
-    orderBy: { createdAt: "desc" },
-    take: 10,
-  });
-
-  const activeJob = myJobs.find(
-    (j) => j.status !== "DELIVERED" && j.status !== "CANCELLED",
+function StatCard({
+  label,
+  value,
+  href,
+  accent,
+}: {
+  label: string;
+  value: string;
+  href?: string;
+  accent?: string;
+}) {
+  const inner = (
+    <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5">
+      <p className="text-sm text-slate-400">{label}</p>
+      <p className={`mt-2 text-2xl font-bold ${accent ?? "text-white"}`}>{value}</p>
+    </div>
   );
+  if (href) {
+    return (
+      <Link href={href} className="block transition hover:border-emerald-500/30">
+        {inner}
+      </Link>
+    );
+  }
+  return inner;
+}
 
-  const needsVerification =
-    status === "PENDING" ||
-    status === "REJECTED" ||
-    !profile.idNumber;
+export default async function DriverOverviewPage() {
+  const user = await requireUser(["DRIVER"]);
+  const profile = await getDriverProfileForUser(user.id);
+  if (!profile) return null;
+
+  const vType = primaryVehicleType(profile.vehicles);
+  const availableJobs = await getAvailableJobsForDriver(profile.id, vType);
+  const earnings = await getDriverEarningsStats(profile.id);
+
+  const activeCount = await db.booking.count({
+    where: {
+      driverId: profile.id,
+      status: { notIn: ["DELIVERED", "CANCELLED"] },
+    },
+  });
+
+  const suspended = profile.accountStatus === "SUSPENDED";
+  const verified = profile.verificationStatus === "APPROVED";
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Driver hub</h1>
-          <p className="mt-1 text-slate-400">Hi {user.fullName}</p>
+          <h1 className="text-2xl font-bold text-white">Driver overview</h1>
+          <p className="mt-1 text-slate-400">Welcome back, {user.fullName}</p>
+          <p className="mt-2 text-sm text-slate-500">
+            Verification:{" "}
+            <span className="text-amber-400">
+              {verificationDisplay(profile.verificationStatus as VerificationStatus)}
+            </span>
+          </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <StatusBadge
-            label={verificationLabels[status]}
-            tone={toneMap[status]}
-          />
-          {status === "APPROVED" && (
-            <AvailabilityToggle initial={profile.isAvailable} />
-          )}
-        </div>
+        <DriverOnlineToggle
+          initial={profile.isAvailable}
+          canToggle={canGoOnline(profile)}
+          suspended={suspended}
+        />
       </div>
 
-      {needsVerification && (
-        <div className="mt-6 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5">
-          <p className="font-medium text-amber-200">Complete verification</p>
-          <p className="mt-1 text-sm text-amber-200/70">
-            Submit your ID, licence and vehicle details before accepting paid jobs.
+      {!verified && (
+        <div className="mb-6 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4">
+          <p className="text-sm text-amber-200">
+            Unverified drivers cannot accept jobs. Complete{" "}
+            <Link href="/driver/profile" className="font-semibold text-amber-400 underline">
+              profile & verification
+            </Link>
+            .
           </p>
-          <Link
-            href="/driver/verify"
-            className="mt-3 inline-block text-sm font-semibold text-amber-400 hover:underline"
-          >
-            Start verification →
-          </Link>
         </div>
       )}
 
-      {status === "UNDER_REVIEW" && (
-        <p className="mt-6 rounded-xl bg-slate-800/80 px-4 py-3 text-sm text-slate-300">
-          Your documents are being reviewed. You will be able to accept jobs once approved.
-        </p>
-      )}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <StatCard
+          label="Available jobs"
+          value={String(availableJobs.length)}
+          href="/driver/jobs"
+          accent="text-amber-400"
+        />
+        <StatCard
+          label="Active deliveries"
+          value={String(activeCount)}
+          href="/driver/deliveries"
+        />
+        <StatCard
+          label="Completed jobs"
+          value={String(earnings.completedCount)}
+        />
+        <StatCard
+          label="Total earnings"
+          value={formatZAR(earnings.totalEarnings)}
+          href="/driver/earnings"
+          accent="text-emerald-400"
+        />
+        <StatCard
+          label="Pending payouts"
+          value={formatZAR(earnings.pendingPayout)}
+          href="/driver/earnings"
+        />
+        <StatCard
+          label="Driver rating"
+          value={`${profile.rating.toFixed(1)} ★`}
+        />
+      </div>
 
-      {status === "REJECTED" && profile.reviewNotes && (
-        <p className="mt-6 rounded-xl bg-red-950/40 px-4 py-3 text-sm text-red-300">
-          {profile.reviewNotes}
-        </p>
-      )}
-
-      {activeJob && status === "APPROVED" && (
-        <section className="mt-8">
-          <h2 className="mb-3 text-lg font-semibold text-white">Active job</h2>
-          <ActiveJobPanel
-            bookingId={activeJob.id}
-            reference={activeJob.reference}
-            status={activeJob.status}
-            dropoffCity={activeJob.dropoffCity}
-          />
+      {activeCount > 0 && (
+        <section className="mt-10">
+          <Link
+            href="/driver/deliveries"
+            className="text-sm font-semibold text-emerald-400 hover:underline"
+          >
+            View active deliveries →
+          </Link>
         </section>
       )}
 
-      <div className="mt-10">
-        <DriverJobs
-          openJobs={openJobs as Parameters<typeof DriverJobs>[0]["openJobs"]}
-          myJobs={myJobs as Parameters<typeof DriverJobs>[0]["myJobs"]}
-          canAccept={status === "APPROVED"}
-        />
-      </div>
+      <p className="mt-8 text-xs text-slate-600">
+        From tender documents and small parcels to furniture, business equipment,
+        vehicles, and heavy assets — match jobs to your approved vehicle type only.
+      </p>
     </div>
   );
 }

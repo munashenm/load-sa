@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import { getSessionUserFromRequest } from "@/lib/auth-request";
 import { db } from "@/lib/db";
+import {
+  canAcceptJobs,
+  jobMatchesVehicle,
+  primaryVehicleType,
+} from "@/lib/driver-portal";
 import { notifyCustomer } from "@/lib/notifications";
+import type { VehicleType } from "@/lib/types";
 
 export async function POST(
   request: Request,
@@ -14,9 +20,13 @@ export async function POST(
     return NextResponse.json({ error: "Driver account required" }, { status: 403 });
   }
 
-  if (user.driverProfile.verificationStatus !== "APPROVED") {
+  const profile = await db.driverProfile.findUnique({
+    where: { id: user.driverProfile.id },
+    include: { vehicles: true },
+  });
+  if (!profile || !canAcceptJobs(profile)) {
     return NextResponse.json(
-      { error: "Complete driver verification before accepting jobs" },
+      { error: "Go online when verified to accept jobs" },
       { status: 403 },
     );
   }
@@ -24,6 +34,14 @@ export async function POST(
   const booking = await db.booking.findUnique({ where: { id } });
   if (!booking || booking.status !== "SEARCHING_DRIVER") {
     return NextResponse.json({ error: "Job not available" }, { status: 404 });
+  }
+
+  const vType = primaryVehicleType(profile.vehicles);
+  if (!jobMatchesVehicle(booking.vehicleType, vType)) {
+    return NextResponse.json(
+      { error: "Job does not match your vehicle type" },
+      { status: 403 },
+    );
   }
 
   const updated = await db.booking.update({

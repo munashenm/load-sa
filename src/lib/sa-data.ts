@@ -42,8 +42,14 @@ export const VEHICLE_OPTIONS: {
     maxWeightKg: 15,
   },
   {
+    value: "CAR",
+    label: "Car",
+    description: "Small parcels and documents",
+    maxWeightKg: 200,
+  },
+  {
     value: "BAKKIE",
-    label: "Bakkie",
+    label: "Bakkie / pickup",
     description: "Furniture, appliances, local moves",
     maxWeightKg: 1200,
   },

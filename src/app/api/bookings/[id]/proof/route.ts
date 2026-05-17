@@ -18,21 +18,25 @@ export async function POST(
     return NextResponse.json({ error: "Not your job" }, { status: 403 });
   }
 
-  const { notes, imageUrl } = await request.json();
+  const { notes, imageUrl, proofType } = await request.json();
+  const type =
+    proofType === "PICKUP" ? "PICKUP_PROOF" : proofType === "DELIVERY" ? "DELIVERY_PROOF" : "PHOTO";
 
   const proof = await db.deliveryProof.create({
     data: {
       bookingId: id,
-      notes: notes ?? "Delivery completed",
+      notes: notes ?? (type === "PICKUP_PROOF" ? "Pickup proof" : "Delivery proof"),
       imageUrl: imageUrl ?? null,
-      type: imageUrl ? "PHOTO" : "NOTE",
+      type,
     },
   });
 
-  await db.booking.update({
-    where: { id },
-    data: { status: "DELIVERED" },
-  });
+  if (type === "DELIVERY_PROOF" || proofType === "DELIVERY") {
+    await db.booking.update({
+      where: { id },
+      data: { status: "DELIVERED" },
+    });
+  }
 
   return NextResponse.json({ proof });
 }

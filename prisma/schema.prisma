@@ -52,12 +52,23 @@ model DriverProfile {
   accountStatus      String    @default("ACTIVE")
   reviewedAt         DateTime?
   reviewNotes        String?
+  rating             Float     @default(5)
+  bankAccountHolder  String?
+  bankName           String?
+  bankAccountNumber  String?
+  bankBranchCode     String?
+  idDocumentUrl      String?
+  licenseDocumentUrl String?
+  proofOfAddressUrl  String?
+  vehicleRegistrationUrl String?
+  vehiclePhotosJson  String?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
-  vehicles Vehicle[]
-  bookings Booking[] @relation("DriverBookings")
-  payouts  Payout[]
+  vehicles  Vehicle[]
+  bookings  Booking[]         @relation("DriverBookings")
+  payouts   Payout[]
+  declines  BookingDecline[]
 }
 
 model Vehicle {
@@ -71,7 +82,18 @@ model Vehicle {
   maxWeightKg     Int?
   maxVolumeM3     Float?
   hasTrailer      Boolean       @default(false)
+  insuranceStatus String?
   createdAt       DateTime      @default(now())
+}
+
+model BookingDecline {
+  id              String        @id @default(cuid())
+  driverProfileId String
+  driverProfile   DriverProfile @relation(fields: [driverProfileId], references: [id], onDelete: Cascade)
+  bookingId       String
+  createdAt       DateTime      @default(now())
+
+  @@unique([driverProfileId, bookingId])
 }
 
 /// Order / delivery request (customer-facing: "delivery")

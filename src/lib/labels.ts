@@ -17,16 +17,19 @@ export const verificationLabels: Record<VerificationStatus, string> = {
 
 export const bookingStatusLabels: Record<BookingStatus, string> = {
   SEARCHING_DRIVER: "Finding driver",
-  DRIVER_ASSIGNED: "Driver assigned",
+  DRIVER_ASSIGNED: "Accepted",
+  EN_ROUTE_PICKUP: "On the way to pickup",
   PICKED_UP: "Picked up",
   IN_TRANSIT: "In transit",
+  NEAR_DESTINATION: "Near destination",
   DELIVERED: "Delivered",
   CANCELLED: "Cancelled",
 };
 
 export const vehicleTypeLabels: Record<VehicleType, string> = {
-  MOTORCYCLE: "Motorcycle",
-  BAKKIE: "Bakkie",
+  MOTORCYCLE: "Motorcycle / scooter",
+  CAR: "Car",
+  BAKKIE: "Bakkie / pickup",
   PANEL_VAN: "Panel van",
   LIGHT_TRUCK: "Light truck",
   MEDIUM_TRUCK: "Medium truck",

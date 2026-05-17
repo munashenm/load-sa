@@ -69,8 +69,10 @@ export async function notifyCustomerForStatus(
 
   const map: Record<string, NotificationType | undefined> = {
     DRIVER_ASSIGNED: "DRIVER_ACCEPTED",
+    EN_ROUTE_PICKUP: "EN_ROUTE_PICKUP",
     PICKED_UP: "GOODS_PICKED_UP",
     IN_TRANSIT: "IN_TRANSIT",
+    NEAR_DESTINATION: "NEAR_DESTINATION",
     DELIVERED: "DELIVERED",
   };
 

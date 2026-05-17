@@ -14,6 +14,7 @@ import { Package } from "lucide-react";
 
 const ICONS: Record<VehicleType, LucideIcon> = {
   MOTORCYCLE: Bike,
+  CAR: Car,
   BAKKIE: Car,
   PANEL_VAN: Package,
   LIGHT_TRUCK: Truck,

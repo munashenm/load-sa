@@ -6,8 +6,10 @@ import { applyOrderPricing } from "@/lib/platform";
 
 const ALLOWED = [
   "DRIVER_ASSIGNED",
+  "EN_ROUTE_PICKUP",
   "PICKED_UP",
   "IN_TRANSIT",
+  "NEAR_DESTINATION",
   "DELIVERED",
   "CANCELLED",
 ] as const;

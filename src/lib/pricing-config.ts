@@ -13,6 +13,7 @@ export type PricingConfig = {
 
 const VEHICLE_TYPES: VehicleType[] = [
   "MOTORCYCLE",
+  "CAR",
   "BAKKIE",
   "PANEL_VAN",
   "LIGHT_TRUCK",
@@ -24,6 +25,7 @@ const VEHICLE_TYPES: VehicleType[] = [
 
 export const DEFAULT_VEHICLE_RATES: Record<VehicleType, VehicleRate> = {
   MOTORCYCLE: { base: 85, perKm: 6 },
+  CAR: { base: 200, perKm: 10 },
   BAKKIE: { base: 350, perKm: 12 },
   PANEL_VAN: { base: 450, perKm: 14 },
   LIGHT_TRUCK: { base: 1200, perKm: 22 },
