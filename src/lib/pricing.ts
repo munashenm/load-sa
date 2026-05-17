@@ -1,65 +1,16 @@
 import {
   DEFAULT_PRICING_CONFIG,
   getPricingConfig,
-  urgencyMultiplier,
   type PricingConfig,
 } from "@/lib/pricing-config";
+import {
+  calculateSmartPrice,
+  type SmartPricingInput,
+  type PriceBreakdown,
+} from "@/lib/smart-pricing";
 import type { DeliveryUrgency, VehicleType } from "@/lib/types";
 
-/** Rough distance estimate from province pair (national coverage MVP). */
-export function estimateDistanceKm(
-  pickupProvince: string,
-  dropoffProvince: string,
-): number {
-  if (pickupProvince === dropoffProvince) {
-    return 120;
-  }
-  const longHaulPairs = new Set([
-    "Western Cape-Gauteng",
-    "Gauteng-Western Cape",
-    "Western Cape-KwaZulu-Natal",
-    "KwaZulu-Natal-Western Cape",
-    "Eastern Cape-Gauteng",
-    "Gauteng-Eastern Cape",
-  ]);
-  const key = `${pickupProvince}-${dropoffProvince}`;
-  if (longHaulPairs.has(key)) {
-    return 1400;
-  }
-  return 650;
-}
-
-const SIZE_MULTIPLIER: Record<string, number> = {
-  SMALL: 1,
-  MEDIUM: 1.05,
-  LARGE: 1.12,
-  OVERSIZED: 1.25,
-};
-
-function computePrice(
-  config: PricingConfig,
-  vehicleType: VehicleType,
-  pickupProvince: string,
-  dropoffProvince: string,
-  weightKg?: number | null,
-  urgency: DeliveryUrgency = "STANDARD",
-  cargoSize?: string | null,
-): number {
-  const km = estimateDistanceKm(pickupProvince, dropoffProvince);
-  const rates = config.vehicleRates[vehicleType];
-  let price = rates.base + rates.perKm * km + config.baseFee * 0.1;
-
-  if (weightKg && weightKg > 5000) {
-    price *= 1.15;
-  }
-
-  price *= urgencyMultiplier(urgency, config);
-  if (cargoSize && SIZE_MULTIPLIER[cargoSize]) {
-    price *= SIZE_MULTIPLIER[cargoSize];
-  }
-
-  return Math.round(price / 10) * 10;
-}
+export { estimateDistanceKm } from "@/lib/pricing-distance";
 
 export function estimateBookingPrice(
   vehicleType: VehicleType,
@@ -69,36 +20,35 @@ export function estimateBookingPrice(
   urgency: DeliveryUrgency = "STANDARD",
   cargoSize?: string | null,
   config: PricingConfig = DEFAULT_PRICING_CONFIG,
+  extras?: Partial<SmartPricingInput>,
 ): number {
-  return computePrice(
+  return calculateSmartPrice(
+    {
+      vehicleType,
+      pickupProvince,
+      dropoffProvince,
+      weightKg,
+      urgency,
+      cargoSize,
+      ...extras,
+    },
     config,
-    vehicleType,
-    pickupProvince,
-    dropoffProvince,
-    weightKg,
-    urgency,
-    cargoSize,
-  );
+  ).total;
+}
+
+export function estimateBookingPriceWithBreakdown(
+  input: SmartPricingInput,
+  config: PricingConfig = DEFAULT_PRICING_CONFIG,
+): PriceBreakdown {
+  return calculateSmartPrice(input, config);
 }
 
 export async function estimateBookingPriceFromDb(
-  vehicleType: VehicleType,
-  pickupProvince: string,
-  dropoffProvince: string,
-  weightKg?: number | null,
-  urgency: DeliveryUrgency = "STANDARD",
-  cargoSize?: string | null,
-): Promise<number> {
+  input: SmartPricingInput,
+): Promise<{ total: number; breakdown: PriceBreakdown }> {
   const config = await getPricingConfig();
-  return computePrice(
-    config,
-    vehicleType,
-    pickupProvince,
-    dropoffProvince,
-    weightKg,
-    urgency,
-    cargoSize,
-  );
+  const breakdown = calculateSmartPrice(input, config);
+  return { total: breakdown.total, breakdown };
 }
 
 export function generateBookingReference(): string {

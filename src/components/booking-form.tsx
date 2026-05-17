@@ -1,19 +1,28 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { FieldError, Input, Label, Select, Textarea } from "@/components/ui/input";
+import { PriceBreakdownCard } from "@/components/pricing/price-breakdown";
 import {
   CARGO_SIZE_OPTIONS,
+  DELIVERY_CATEGORY_OPTIONS,
+  INSURANCE_OPTIONS,
   SA_PROVINCES,
   URGENCY_OPTIONS,
   VEHICLE_OPTIONS,
   formatZAR,
 } from "@/lib/sa-data";
-import { estimateBookingPrice } from "@/lib/pricing";
 import { VehicleIcon } from "@/lib/vehicle-icons";
-import type { CargoSize, DeliveryUrgency, VehicleType } from "@/lib/types";
+import type {
+  CargoSize,
+  DeliveryCategory,
+  DeliveryUrgency,
+  InsuranceLevel,
+  VehicleType,
+} from "@/lib/types";
+import type { PriceBreakdown } from "@/lib/smart-pricing";
 
 export function BookingForm({ onSuccess }: { onSuccess?: (reference: string) => void }) {
   const router = useRouter();
@@ -24,23 +33,69 @@ export function BookingForm({ onSuccess }: { onSuccess?: (reference: string) => 
   const [urgency, setUrgency] = useState<DeliveryUrgency>("STANDARD");
   const [weightKg, setWeightKg] = useState("");
   const [cargoImageUrl, setCargoImageUrl] = useState("");
+  const [deliveryCategory, setDeliveryCategory] =
+    useState<DeliveryCategory>("GENERAL");
+  const [insuranceLevel, setInsuranceLevel] = useState<InsuranceLevel>("STANDARD");
+  const [isFragile, setIsFragile] = useState(false);
+  const [usesTollRoads, setUsesTollRoads] = useState(false);
+  const [isNightDelivery, setIsNightDelivery] = useState(false);
+  const [stopAddress, setStopAddress] = useState("");
+  const [stopCity, setStopCity] = useState("");
+  const [stopProvince, setStopProvince] = useState("Gauteng");
+  const [breakdown, setBreakdown] = useState<PriceBreakdown | null>(null);
+  const [estimate, setEstimate] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const estimate = useMemo(
-    () =>
-      estimateBookingPrice(
-        vehicleType,
-        pickupProvince,
-        dropoffProvince,
-        weightKg ? Number(weightKg) : undefined,
-        urgency,
-        cargoSize,
-      ),
-    [vehicleType, pickupProvince, dropoffProvince, weightKg, urgency, cargoSize],
-  );
+  useEffect(() => {
+    const stops =
+      stopAddress && stopCity
+        ? [{ address: stopAddress, city: stopCity, province: stopProvince }]
+        : [];
+    const t = setTimeout(async () => {
+      const res = await fetch("/api/pricing/estimate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          vehicleType,
+          pickupProvince,
+          dropoffProvince,
+          weightKg: weightKg ? Number(weightKg) : undefined,
+          urgency,
+          cargoSize,
+          deliveryCategory,
+          isFragile: isFragile || deliveryCategory === "FRAGILE",
+          usesTollRoads,
+          isNightDelivery,
+          insuranceLevel,
+          stops,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setEstimate(data.total);
+        setBreakdown(data.breakdown);
+      }
+    }, 300);
+    return () => clearTimeout(t);
+  }, [
+    vehicleType,
+    pickupProvince,
+    dropoffProvince,
+    weightKg,
+    urgency,
+    cargoSize,
+    deliveryCategory,
+    isFragile,
+    usesTollRoads,
+    isNightDelivery,
+    insuranceLevel,
+    stopAddress,
+    stopCity,
+    stopProvince,
+  ]);
 
   async function onImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -66,9 +121,17 @@ export function BookingForm({ onSuccess }: { onSuccess?: (reference: string) => 
     setLoading(true);
 
     const form = new FormData(e.currentTarget);
-    const payload = Object.fromEntries(form.entries());
-    if (cargoImageUrl) {
-      payload.cargoImageUrl = cargoImageUrl;
+    const payload: Record<string, unknown> = Object.fromEntries(form.entries());
+    if (cargoImageUrl) payload.cargoImageUrl = cargoImageUrl;
+    payload.deliveryCategory = deliveryCategory;
+    payload.insuranceLevel = insuranceLevel;
+    payload.isFragile = isFragile;
+    payload.usesTollRoads = usesTollRoads;
+    payload.isNightDelivery = isNightDelivery;
+    if (stopAddress && stopCity) {
+      payload.stops = [
+        { address: stopAddress, city: stopCity, province: stopProvince },
+      ];
     }
 
     const res = await fetch("/api/bookings", {
@@ -112,6 +175,41 @@ export function BookingForm({ onSuccess }: { onSuccess?: (reference: string) => 
               name="pickupProvince"
               value={pickupProvince}
               onChange={(e) => setPickupProvince(e.target.value)}
+            >
+              {SA_PROVINCES.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </Select>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5">
+        <h2 className="mb-4 text-lg font-semibold text-white">Extra stop (optional)</h2>
+        <p className="mb-3 text-xs text-slate-500">
+          Multi-stop deliveries for warehouse → office → client routes.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <Label htmlFor="stopAddress">Stop address</Label>
+            <Input
+              id="stopAddress"
+              value={stopAddress}
+              onChange={(e) => setStopAddress(e.target.value)}
+              placeholder="Optional intermediate stop"
+            />
+          </div>
+          <div>
+            <Label>Stop city</Label>
+            <Input value={stopCity} onChange={(e) => setStopCity(e.target.value)} />
+          </div>
+          <div>
+            <Label>Stop province</Label>
+            <Select
+              value={stopProvince}
+              onChange={(e) => setStopProvince(e.target.value)}
             >
               {SA_PROVINCES.map((p) => (
                 <option key={p} value={p}>
@@ -195,6 +293,64 @@ export function BookingForm({ onSuccess }: { onSuccess?: (reference: string) => 
             </div>
           </div>
           <div>
+            <Label htmlFor="deliveryCategory">Delivery category</Label>
+            <Select
+              id="deliveryCategory"
+              name="deliveryCategory"
+              value={deliveryCategory}
+              onChange={(e) =>
+                setDeliveryCategory(e.target.value as DeliveryCategory)
+              }
+            >
+              {DELIVERY_CATEGORY_OPTIONS.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <div className="flex flex-wrap gap-4 text-sm">
+            <label className="flex items-center gap-2 text-slate-300">
+              <input
+                type="checkbox"
+                checked={isFragile}
+                onChange={(e) => setIsFragile(e.target.checked)}
+              />
+              Fragile items
+            </label>
+            <label className="flex items-center gap-2 text-slate-300">
+              <input
+                type="checkbox"
+                checked={usesTollRoads}
+                onChange={(e) => setUsesTollRoads(e.target.checked)}
+              />
+              Toll roads likely
+            </label>
+            <label className="flex items-center gap-2 text-slate-300">
+              <input
+                type="checkbox"
+                checked={isNightDelivery}
+                onChange={(e) => setIsNightDelivery(e.target.checked)}
+              />
+              Night delivery
+            </label>
+          </div>
+          <div>
+            <Label htmlFor="insuranceLevel">Insurance</Label>
+            <Select
+              id="insuranceLevel"
+              name="insuranceLevel"
+              value={insuranceLevel}
+              onChange={(e) => setInsuranceLevel(e.target.value as InsuranceLevel)}
+            >
+              {INSURANCE_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <div>
             <Label htmlFor="cargoDimensions">Dimensions (optional)</Label>
             <Input
               id="cargoDimensions"
@@ -268,13 +424,20 @@ export function BookingForm({ onSuccess }: { onSuccess?: (reference: string) => 
         </div>
       </section>
 
-      <div className="flex flex-col gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm text-amber-200/80">Estimated price (ZAR)</p>
-          <p className="text-2xl font-bold text-amber-300">{formatZAR(estimate)}</p>
-          <p className="text-xs text-slate-400">
-            Includes urgency & size · final price may be confirmed by driver
-          </p>
+      <div className="flex flex-col gap-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-sm text-amber-200/80">Smart estimate (ZAR)</p>
+            <p className="text-2xl font-bold text-amber-300">{formatZAR(estimate)}</p>
+            <p className="text-xs text-slate-400">
+              Distance, vehicle, urgency, weight, fragile, tolls, night & insurance
+            </p>
+          </div>
+          {breakdown && (
+            <div className="w-full sm:max-w-sm">
+              <PriceBreakdownCard breakdown={breakdown} />
+            </div>
+          )}
         </div>
         <Button type="submit" disabled={loading || uploading} className="sm:shrink-0">
           {loading ? "Creating booking…" : "Submit delivery request"}

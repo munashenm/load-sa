@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { BookingChat } from "@/components/chat/booking-chat";
 import { ComplaintForm } from "@/components/complaints/complaint-form";
 import { BookingSummaryCard } from "@/components/booking-summary";
+import { BookingRatingForm } from "@/components/ratings/booking-rating-form";
 import { requireUser } from "@/lib/auth";
 import { maskContactForBooking } from "@/lib/chat-access";
 import { db } from "@/lib/db";
@@ -55,9 +56,29 @@ export default async function CustomerBookingDetailPage({
         </div>
       )}
 
+      {booking.paymentStatus === "PAID" &&
+        booking.deliveryOtp &&
+        booking.status !== "DELIVERED" && (
+          <div className="mt-6 rounded-xl border border-amber-500/40 bg-amber-500/10 p-5">
+            <h2 className="font-semibold text-amber-200">Delivery OTP</h2>
+            <p className="mt-1 text-sm text-slate-400">
+              Give this code to your driver only when you receive your goods.
+            </p>
+            <p className="mt-3 font-mono text-3xl tracking-widest text-white">
+              {booking.deliveryOtp}
+            </p>
+          </div>
+        )}
+
       <div className="mt-6">
         <BookingChat bookingId={booking.id} />
       </div>
+
+      {booking.status === "DELIVERED" && (
+        <div className="mt-6">
+          <BookingRatingForm bookingId={booking.id} targetRole="DRIVER" />
+        </div>
+      )}
 
       <div className="mt-6">
         <ComplaintForm bookingId={booking.id} bookingReference={booking.reference} />

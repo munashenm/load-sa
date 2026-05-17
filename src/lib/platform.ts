@@ -16,7 +16,7 @@ export function splitOrderAmount(total: number, commissionPercent: number) {
 export async function applyOrderPricing(bookingId: string, total: number) {
   const commissionPercent = await getCommissionPercent();
   const { platformFee, driverEarnings } = splitOrderAmount(total, commissionPercent);
-  return db.booking.update({
+  const booking = await db.booking.update({
     where: { id: bookingId },
     data: {
       finalPrice: total,
@@ -24,5 +24,15 @@ export async function applyOrderPricing(bookingId: string, total: number) {
       platformFee,
       driverEarnings,
     },
+    select: { driverId: true },
   });
+
+  if (booking.driverId) {
+    await db.driverProfile.update({
+      where: { id: booking.driverId },
+      data: { walletBalance: { increment: driverEarnings } },
+    });
+  }
+
+  return booking;
 }

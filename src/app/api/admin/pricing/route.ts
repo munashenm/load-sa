@@ -17,6 +17,11 @@ const putSchema = z.object({
   pricePerKm: z.number().min(0),
   sameDaySurchargePct: z.number().min(0).max(200),
   expressSurchargePct: z.number().min(0).max(200),
+  fragileSurchargePct: z.number().min(0).max(200),
+  tollSurchargePct: z.number().min(0).max(200),
+  nightSurchargePct: z.number().min(0).max(200),
+  insuredSurchargePct: z.number().min(0).max(200),
+  multiStopSurchargePct: z.number().min(0).max(200),
   vehicleRates: z.record(z.string(), vehicleRateSchema),
 });
 
@@ -33,6 +38,11 @@ export async function GET(request: Request) {
         pricePerKm: row.pricePerKm,
         sameDaySurchargePct: row.sameDaySurchargePct,
         expressSurchargePct: row.expressSurchargePct,
+        fragileSurchargePct: row.fragileSurchargePct ?? DEFAULT_PRICING_CONFIG.fragileSurchargePct,
+        tollSurchargePct: row.tollSurchargePct ?? DEFAULT_PRICING_CONFIG.tollSurchargePct,
+        nightSurchargePct: row.nightSurchargePct ?? DEFAULT_PRICING_CONFIG.nightSurchargePct,
+        insuredSurchargePct: row.insuredSurchargePct ?? DEFAULT_PRICING_CONFIG.insuredSurchargePct,
+        multiStopSurchargePct: row.multiStopSurchargePct ?? DEFAULT_PRICING_CONFIG.multiStopSurchargePct,
         vehicleRates: parseVehicleRatesJson(row.vehicleRatesJson),
       }
     : DEFAULT_PRICING_CONFIG;
@@ -52,8 +62,18 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Invalid pricing" }, { status: 400 });
   }
 
-  const { baseFee, pricePerKm, sameDaySurchargePct, expressSurchargePct, vehicleRates } =
-    parsed.data;
+  const {
+    baseFee,
+    pricePerKm,
+    sameDaySurchargePct,
+    expressSurchargePct,
+    fragileSurchargePct,
+    tollSurchargePct,
+    nightSurchargePct,
+    insuredSurchargePct,
+    multiStopSurchargePct,
+    vehicleRates,
+  } = parsed.data;
 
   const settings = await db.platformSettings.upsert({
     where: { id: "default" },
@@ -62,6 +82,11 @@ export async function PUT(request: Request) {
       pricePerKm,
       sameDaySurchargePct,
       expressSurchargePct,
+      fragileSurchargePct,
+      tollSurchargePct,
+      nightSurchargePct,
+      insuredSurchargePct,
+      multiStopSurchargePct,
       vehicleRatesJson: JSON.stringify(vehicleRates as Record<VehicleType, VehicleRate>),
     },
     create: {
@@ -71,6 +96,11 @@ export async function PUT(request: Request) {
       pricePerKm,
       sameDaySurchargePct,
       expressSurchargePct,
+      fragileSurchargePct,
+      tollSurchargePct,
+      nightSurchargePct,
+      insuredSurchargePct,
+      multiStopSurchargePct,
       vehicleRatesJson: JSON.stringify(vehicleRates),
     },
   });

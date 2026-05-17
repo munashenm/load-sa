@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { DeliveryDetailPanel } from "@/components/driver/delivery-detail-panel";
+import { BookingRatingForm } from "@/components/ratings/booking-rating-form";
 import { requireUser } from "@/lib/auth";
 import { maskContactForBooking } from "@/lib/chat-access";
 import { getDriverProfileForUser } from "@/lib/driver-portal";
@@ -47,6 +48,11 @@ export default async function DriverDeliveryDetailPage({
         {booking.dropoffCity}
       </p>
       <div className="mt-8 max-w-xl">
+        {booking.status === "DELIVERED" && (
+          <div className="mb-6">
+            <BookingRatingForm bookingId={booking.id} targetRole="CUSTOMER" />
+          </div>
+        )}
         <DeliveryDetailPanel
           bookingId={booking.id}
           reference={booking.reference}

@@ -54,14 +54,21 @@ export async function POST(request: Request) {
   }
 
   const data = parsed.data;
-  const estimatedPrice = await estimateBookingPriceFromDb(
-    data.vehicleType,
-    data.pickupProvince,
-    data.dropoffProvince,
-    data.weightKg,
-    data.urgency,
-    data.cargoSize,
-  );
+  const { total, breakdown } = await estimateBookingPriceFromDb({
+    vehicleType: data.vehicleType,
+    pickupProvince: data.pickupProvince,
+    dropoffProvince: data.dropoffProvince,
+    weightKg: data.weightKg,
+    urgency: data.urgency,
+    cargoSize: data.cargoSize,
+    deliveryCategory: data.deliveryCategory,
+    isFragile: data.isFragile ?? data.deliveryCategory === "FRAGILE",
+    usesTollRoads: data.usesTollRoads,
+    isNightDelivery: data.isNightDelivery,
+    insuranceLevel: data.insuranceLevel,
+    stops: data.stops,
+    scheduledAt: data.scheduledAt,
+  });
 
   const booking = await db.booking.create({
     data: {
@@ -80,10 +87,17 @@ export async function POST(request: Request) {
       cargoImageUrl: data.cargoImageUrl || undefined,
       weightKg: data.weightKg,
       urgency: data.urgency,
-      estimatedPrice,
+      deliveryCategory: data.deliveryCategory,
+      isFragile: data.isFragile ?? data.deliveryCategory === "FRAGILE",
+      usesTollRoads: data.usesTollRoads ?? false,
+      isNightDelivery: data.isNightDelivery ?? false,
+      insuranceLevel: data.insuranceLevel,
+      stopsJson: data.stops?.length ? JSON.stringify(data.stops) : undefined,
+      priceBreakdownJson: JSON.stringify(breakdown),
+      estimatedPrice: total,
       scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : undefined,
     },
   });
 
-  return NextResponse.json({ booking });
+  return NextResponse.json({ booking, breakdown });
 }

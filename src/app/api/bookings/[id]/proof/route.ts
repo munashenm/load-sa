@@ -18,7 +18,7 @@ export async function POST(
     return NextResponse.json({ error: "Not your job" }, { status: 403 });
   }
 
-  const { notes, imageUrl, proofType } = await request.json();
+  const { notes, imageUrl, proofType, signatureUrl } = await request.json();
   const type =
     proofType === "PICKUP" ? "PICKUP_PROOF" : proofType === "DELIVERY" ? "DELIVERY_PROOF" : "PHOTO";
 
@@ -27,6 +27,7 @@ export async function POST(
       bookingId: id,
       notes: notes ?? (type === "PICKUP_PROOF" ? "Pickup proof" : "Delivery proof"),
       imageUrl: imageUrl ?? null,
+      signatureUrl: signatureUrl ?? null,
       type,
     },
   });

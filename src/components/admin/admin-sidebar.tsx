@@ -25,6 +25,8 @@ const links = [
   { href: "/admin/chats", label: "Chat monitoring", icon: MessageSquare },
   { href: "/admin/notifications", label: "Notifications", icon: Bell },
   { href: "/admin/pricing", label: "Pricing Settings", icon: Settings },
+  { href: "/admin/heatmap", label: "Driver heatmap", icon: Truck },
+  { href: "/admin/analytics", label: "Analytics", icon: LayoutDashboard },
   { href: "/admin/admins", label: "Admin Users", icon: Shield },
 ];
 

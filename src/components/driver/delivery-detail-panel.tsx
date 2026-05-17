@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { BookingChat } from "@/components/chat/booking-chat";
 import { ComplaintForm } from "@/components/complaints/complaint-form";
+import { EmergencyButton } from "@/components/safety/emergency-button";
 import { Button } from "@/components/ui/button";
-import { Label, Textarea } from "@/components/ui/input";
+import { Input, Label, Textarea } from "@/components/ui/input";
 import { bookingStatusLabels } from "@/lib/labels";
 import type { BookingStatus } from "@/lib/types";
 
@@ -44,6 +45,8 @@ export function DeliveryDetailPanel({
   const [notes, setNotes] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [proofType, setProofType] = useState<"PICKUP" | "DELIVERY">("PICKUP");
+  const [otp, setOtp] = useState("");
+  const [signatureFile, setSignatureFile] = useState<File | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
 
   const st = status as BookingStatus;
@@ -86,6 +89,7 @@ export function DeliveryDetailPanel({
   async function submitProof() {
     setLoading("proof");
     let imageUrl: string | undefined;
+    let signatureUrl: string | undefined;
     if (file) {
       const form = new FormData();
       form.append("file", file);
@@ -95,12 +99,37 @@ export function DeliveryDetailPanel({
         imageUrl = data.url;
       }
     }
+    if (signatureFile) {
+      const form = new FormData();
+      form.append("file", signatureFile);
+      const up = await fetch("/api/upload", { method: "POST", body: form });
+      if (up.ok) {
+        const data = await up.json();
+        signatureUrl = data.url;
+      }
+    }
     await fetch(`/api/bookings/${bookingId}/proof`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ notes, imageUrl, proofType }),
+      body: JSON.stringify({ notes, imageUrl, signatureUrl, proofType }),
     });
     setLoading(null);
+    router.refresh();
+  }
+
+  async function verifyOtp() {
+    setLoading("otp");
+    const res = await fetch(`/api/bookings/${bookingId}/verify-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ otp }),
+    });
+    setLoading(null);
+    if (!res.ok) {
+      const data = await res.json();
+      alert(data.error ?? "OTP verification failed");
+      return;
+    }
     router.refresh();
   }
 
@@ -165,8 +194,28 @@ export function DeliveryDetailPanel({
             <p className="text-sm text-emerald-400">Delivery completed.</p>
           )}
 
+          {paymentStatus === "PAID" && status !== "DELIVERED" && (
+            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 space-y-3">
+              <p className="text-sm font-medium text-amber-200">OTP delivery verification</p>
+              <Input
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                placeholder="Customer 6-digit OTP"
+                maxLength={6}
+              />
+              <Button
+                type="button"
+                className="w-full !py-2 text-xs"
+                disabled={loading === "otp" || otp.length !== 6}
+                onClick={verifyOtp}
+              >
+                {loading === "otp" ? "Verifying…" : "Confirm delivery with OTP"}
+              </Button>
+            </div>
+          )}
+
           <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-4 space-y-3">
-            <p className="text-sm font-medium text-white">Proof photos</p>
+            <p className="text-sm font-medium text-white">Digital proof (photo & signature)</p>
             <div className="flex gap-2">
               <button
                 type="button"
@@ -198,6 +247,13 @@ export function DeliveryDetailPanel({
               className="block w-full text-sm text-slate-400"
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             />
+            <Label>Signature image (optional)</Label>
+            <input
+              type="file"
+              accept="image/*"
+              className="block w-full text-sm text-slate-400"
+              onChange={(e) => setSignatureFile(e.target.files?.[0] ?? null)}
+            />
             <Label htmlFor="proof-notes">Notes</Label>
             <Textarea
               id="proof-notes"
@@ -227,6 +283,7 @@ export function DeliveryDetailPanel({
         </p>
       )}
 
+      <EmergencyButton bookingId={bookingId} />
       <ComplaintForm bookingId={bookingId} bookingReference={reference} />
     </div>
   );

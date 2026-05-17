@@ -44,6 +44,43 @@ export const bookingSchema = z.object({
   weightKg: z.coerce.number().int().positive().optional(),
   urgency: z.enum(["STANDARD", "SAME_DAY", "EXPRESS"]).default("STANDARD"),
   scheduledAt: z.string().optional(),
+  deliveryCategory: z
+    .enum([
+      "DOCUMENTS",
+      "ELECTRONICS",
+      "FURNITURE",
+      "APPLIANCES",
+      "CONSTRUCTION",
+      "VEHICLE_TRANSPORT",
+      "FRAGILE",
+      "GENERAL",
+    ])
+    .default("GENERAL"),
+  isFragile: z.coerce.boolean().optional(),
+  usesTollRoads: z.coerce.boolean().optional(),
+  isNightDelivery: z.coerce.boolean().optional(),
+  insuranceLevel: z.enum(["STANDARD", "INSURED"]).default("STANDARD"),
+  stops: z
+    .array(
+      z.object({
+        address: z.string().min(3),
+        city: z.string().min(2),
+        province: provinceEnum,
+        label: z.string().optional(),
+      }),
+    )
+    .max(5)
+    .optional(),
+});
+
+export const ratingSchema = z.object({
+  targetRole: z.enum(["DRIVER", "CUSTOMER"]),
+  scores: z.record(z.string(), z.coerce.number().min(1).max(5)),
+  comment: z.string().max(500).optional(),
+});
+
+export const otpVerifySchema = z.object({
+  otp: z.string().length(6),
 });
 
 export const bookingStatusUpdateSchema = z.object({

@@ -8,6 +8,11 @@ export type PricingConfig = {
   pricePerKm: number;
   sameDaySurchargePct: number;
   expressSurchargePct: number;
+  fragileSurchargePct: number;
+  tollSurchargePct: number;
+  nightSurchargePct: number;
+  insuredSurchargePct: number;
+  multiStopSurchargePct: number;
   vehicleRates: Record<VehicleType, VehicleRate>;
 };
 
@@ -40,6 +45,11 @@ export const DEFAULT_PRICING_CONFIG: PricingConfig = {
   pricePerKm: 12,
   sameDaySurchargePct: 25,
   expressSurchargePct: 45,
+  fragileSurchargePct: 12,
+  tollSurchargePct: 8,
+  nightSurchargePct: 15,
+  insuredSurchargePct: 18,
+  multiStopSurchargePct: 20,
   vehicleRates: DEFAULT_VEHICLE_RATES,
 };
 
@@ -68,6 +78,11 @@ export async function getPricingConfig(): Promise<PricingConfig> {
     pricePerKm: row.pricePerKm ?? DEFAULT_PRICING_CONFIG.pricePerKm,
     sameDaySurchargePct: row.sameDaySurchargePct ?? DEFAULT_PRICING_CONFIG.sameDaySurchargePct,
     expressSurchargePct: row.expressSurchargePct ?? DEFAULT_PRICING_CONFIG.expressSurchargePct,
+    fragileSurchargePct: row.fragileSurchargePct ?? DEFAULT_PRICING_CONFIG.fragileSurchargePct,
+    tollSurchargePct: row.tollSurchargePct ?? DEFAULT_PRICING_CONFIG.tollSurchargePct,
+    nightSurchargePct: row.nightSurchargePct ?? DEFAULT_PRICING_CONFIG.nightSurchargePct,
+    insuredSurchargePct: row.insuredSurchargePct ?? DEFAULT_PRICING_CONFIG.insuredSurchargePct,
+    multiStopSurchargePct: row.multiStopSurchargePct ?? DEFAULT_PRICING_CONFIG.multiStopSurchargePct,
     vehicleRates: parseVehicleRatesJson(row.vehicleRatesJson),
   };
 }

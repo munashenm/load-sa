@@ -3,6 +3,7 @@ import { Truck } from "lucide-react";
 import { logoutAction } from "@/app/actions/auth";
 import { getSessionUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export async function SiteHeader() {
   const user = await getSessionUser();
@@ -20,6 +21,7 @@ export async function SiteHeader() {
         </Link>
 
         <nav className="flex items-center gap-2 sm:gap-3">
+          <ThemeToggle />
           {user ? (
             <>
               {user.role === "ADMIN" && (

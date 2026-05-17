@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { applyOrderPricing } from "@/lib/platform";
 import { verifyPayFastItn } from "@/lib/payfast";
 import { db } from "@/lib/db";
+import { generateDeliveryOtp } from "@/lib/smart-pricing";
 
 export async function POST(request: Request) {
   const text = await request.text();
@@ -52,7 +53,10 @@ export async function POST(request: Request) {
 
     await db.booking.update({
       where: { id: bookingId },
-      data: { paymentStatus: "PAID" },
+      data: {
+        paymentStatus: "PAID",
+        deliveryOtp: generateDeliveryOtp(),
+      },
     });
 
     await applyOrderPricing(bookingId, amount);

@@ -15,10 +15,17 @@ model User {
   phone        String
   role          String
   accountStatus String   @default("ACTIVE")
+  verifiedBadge Boolean  @default(false)
+  referralCode  String?  @unique
+  referredByCode String?
+  fraudFlagsJson String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   driverProfile      DriverProfile?
+  businessAccounts   BusinessAccount[]
+  ratingsGiven       BookingRating[]   @relation("RatingsGiven")
+  safetyReports      SafetyReport[]
   bookingsAsCustomer Booking[]       @relation("CustomerBookings")
   sessions           Session[]
   supportTickets     SupportTicket[]
@@ -62,13 +69,15 @@ model DriverProfile {
   proofOfAddressUrl  String?
   vehicleRegistrationUrl String?
   vehiclePhotosJson  String?
+  walletBalance      Float     @default(0)
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
-  vehicles  Vehicle[]
-  bookings  Booking[]         @relation("DriverBookings")
-  payouts   Payout[]
-  declines  BookingDecline[]
+  vehicles     Vehicle[]
+  bookings     Booking[]           @relation("DriverBookings")
+  payouts      Payout[]
+  declines     BookingDecline[]
+  withdrawals  WalletWithdrawal[]
 }
 
 model Vehicle {
@@ -120,6 +129,15 @@ model Booking {
   cargoImageUrl    String?
   weightKg         Int?
   urgency          String  @default("STANDARD")
+  deliveryCategory String  @default("GENERAL")
+  isFragile        Boolean @default(false)
+  usesTollRoads    Boolean @default(false)
+  isNightDelivery  Boolean @default(false)
+  insuranceLevel   String  @default("STANDARD")
+  stopsJson        String?
+  priceBreakdownJson String?
+  deliveryOtp      String?
+  deliveryOtpVerifiedAt DateTime?
   estimatedPrice   Float
   finalPrice       Float?
   currency         String @default("ZAR")
@@ -144,6 +162,7 @@ model Booking {
   chatMessages ChatMessage[]
   complaints   Complaint[]
   notifications Notification[]
+  ratings      BookingRating[]
 }
 
 model Payment {
@@ -182,6 +201,11 @@ model PlatformSettings {
   pricePerKm          Float    @default(12)
   sameDaySurchargePct Float    @default(25)
   expressSurchargePct Float    @default(45)
+  fragileSurchargePct Float    @default(12)
+  tollSurchargePct    Float    @default(8)
+  nightSurchargePct   Float    @default(15)
+  insuredSurchargePct Float    @default(18)
+  multiStopSurchargePct Float  @default(20)
   vehicleRatesJson    String?
   updatedAt           DateTime @default(now()) @updatedAt
 }
@@ -193,7 +217,54 @@ model DeliveryProof {
   type        String   @default("PHOTO")
   notes       String?
   imageUrl    String?
+  signatureUrl String?
+  otpVerified Boolean  @default(false)
   createdAt   DateTime @default(now())
+}
+
+model BookingRating {
+  id         String   @id @default(cuid())
+  bookingId  String
+  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  fromUserId String
+  fromUser   User     @relation("RatingsGiven", fields: [fromUserId], references: [id], onDelete: Cascade)
+  targetRole String
+  scoresJson String
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  @@unique([bookingId, fromUserId, targetRole])
+}
+
+model SafetyReport {
+  id          String   @id @default(cuid())
+  bookingId   String?
+  reporterId  String
+  reporter    User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  description String
+  status      String   @default("OPEN")
+  createdAt   DateTime @default(now())
+}
+
+model BusinessAccount {
+  id                 String   @id @default(cuid())
+  name               String
+  registrationNumber String?
+  billingEmail       String
+  monthlyInvoicing   Boolean  @default(false)
+  ownerUserId        String
+  owner              User     @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model WalletWithdrawal {
+  id              String        @id @default(cuid())
+  driverProfileId String
+  driverProfile   DriverProfile @relation(fields: [driverProfileId], references: [id], onDelete: Cascade)
+  amount          Float
+  status          String        @default("PENDING")
+  createdAt       DateTime      @default(now())
 }
 
 model Dispute {

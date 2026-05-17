@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { estimateDistanceKm } from "@/lib/pricing";
+import { estimateDistanceKm } from "@/lib/pricing-distance";
 import type { BookingStatus, VehicleType, VerificationStatus } from "@/lib/types";
 
 export async function getDriverProfileForUser(userId: string) {

@@ -1,4 +1,11 @@
-import type { CargoSize, DeliveryUrgency, LoadPreference, VehicleType } from "@/lib/types";
+import type {
+  CargoSize,
+  DeliveryCategory,
+  DeliveryUrgency,
+  InsuranceLevel,
+  LoadPreference,
+  VehicleType,
+} from "@/lib/types";
 
 export const DELIVERY_DESCRIPTION =
   "Load SA connects customers with verified drivers who can deliver anything from tender documents and small parcels to large furniture, business equipment, vehicles, and heavy assets.";
@@ -100,6 +107,28 @@ export const CARGO_SIZE_OPTIONS: {
   { value: "MEDIUM", label: "Medium", description: "Furniture, multiple pallets" },
   { value: "LARGE", label: "Large", description: "Full vehicle load" },
   { value: "OVERSIZED", label: "Oversized", description: "Machinery, abnormal load" },
+];
+
+export const DELIVERY_CATEGORY_OPTIONS: {
+  value: DeliveryCategory;
+  label: string;
+}[] = [
+  { value: "DOCUMENTS", label: "Documents" },
+  { value: "ELECTRONICS", label: "Electronics" },
+  { value: "FURNITURE", label: "Furniture" },
+  { value: "APPLIANCES", label: "Appliances" },
+  { value: "CONSTRUCTION", label: "Construction materials" },
+  { value: "VEHICLE_TRANSPORT", label: "Vehicle / bike / machinery transport" },
+  { value: "FRAGILE", label: "Fragile goods" },
+  { value: "GENERAL", label: "General freight" },
+];
+
+export const INSURANCE_OPTIONS: {
+  value: InsuranceLevel;
+  label: string;
+}[] = [
+  { value: "STANDARD", label: "Standard delivery" },
+  { value: "INSURED", label: "Insured delivery (+ fee)" },
 ];
 
 export const URGENCY_OPTIONS: {

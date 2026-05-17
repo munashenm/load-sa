@@ -20,6 +20,7 @@ export default async function DriverEarningsPage() {
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {[
+          { label: "Wallet balance", value: formatZAR(profile.walletBalance) },
           { label: "Total earnings", value: formatZAR(stats.totalEarnings) },
           { label: "Completed jobs", value: String(stats.completedCount) },
           {
