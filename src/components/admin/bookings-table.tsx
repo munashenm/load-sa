@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
 import { bookingStatusLabels, vehicleTypeLabels } from "@/lib/labels";
 import { formatZAR, VEHICLE_OPTIONS } from "@/lib/sa-data";
+import { VehicleIcon } from "@/lib/vehicle-icons";
 import type { BookingStatus, VehicleType } from "@/lib/types";
 import { BookingDetailModal } from "@/components/admin/booking-detail-modal";
 
@@ -21,6 +22,8 @@ export type AdminBookingRow = {
   createdAt: string;
   pickupCity: string;
   dropoffCity: string;
+  paymentStatus: string;
+  proofCount: number;
   customer: { fullName: string; email: string };
   driver: { id: string; user: { fullName: string } } | null;
 };
@@ -94,7 +97,7 @@ export function BookingsTable({
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-slate-800">
-        <table className="w-full min-w-[1000px] text-left text-sm">
+        <table className="w-full min-w-[1200px] text-left text-sm">
           <thead className="bg-slate-900/80 text-slate-400">
             <tr>
               <th className="px-4 py-3">Booking ID</th>
@@ -102,6 +105,8 @@ export function BookingsTable({
               <th className="px-4 py-3">Pickup</th>
               <th className="px-4 py-3">Drop-off</th>
               <th className="px-4 py-3">Vehicle</th>
+              <th className="px-4 py-3">Payment</th>
+              <th className="px-4 py-3">Proof</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Driver</th>
               <th className="px-4 py-3">Price</th>
@@ -119,8 +124,26 @@ export function BookingsTable({
                 </td>
                 <td className="px-4 py-3 text-slate-300">{b.pickupCity}</td>
                 <td className="px-4 py-3 text-slate-300">{b.dropoffCity}</td>
+                <td className="px-4 py-3">
+                  <span className="flex items-center gap-2 text-slate-300">
+                    <VehicleIcon type={b.vehicleType} className="h-4 w-4" />
+                    <span className="text-xs">
+                      {vehicleTypeLabels[b.vehicleType as VehicleType]}
+                    </span>
+                  </span>
+                </td>
+                <td className="px-4 py-3">
+                  <StatusBadge
+                    label={b.paymentStatus}
+                    tone={b.paymentStatus === "PAID" ? "green" : "amber"}
+                  />
+                </td>
                 <td className="px-4 py-3 text-slate-400">
-                  {vehicleTypeLabels[b.vehicleType as VehicleType]}
+                  {b.proofCount > 0 ? (
+                    <span className="text-emerald-400">{b.proofCount} uploaded</span>
+                  ) : (
+                    <span className="text-slate-500">None</span>
+                  )}
                 </td>
                 <td className="px-4 py-3">
                   <select

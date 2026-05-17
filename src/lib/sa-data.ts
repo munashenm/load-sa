@@ -1,5 +1,8 @@
 import type { CargoSize, DeliveryUrgency, LoadPreference, VehicleType } from "@/lib/types";
 
+export const DELIVERY_DESCRIPTION =
+  "Load SA connects customers with verified drivers who can deliver anything from tender documents and small parcels to large furniture, business equipment, vehicles, and heavy assets.";
+
 export const SA_PROVINCES = [
   "Eastern Cape",
   "Free State",

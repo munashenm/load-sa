@@ -12,6 +12,7 @@ import {
   formatZAR,
 } from "@/lib/sa-data";
 import { estimateBookingPrice } from "@/lib/pricing";
+import { VehicleIcon } from "@/lib/vehicle-icons";
 import type { CargoSize, DeliveryUrgency, VehicleType } from "@/lib/types";
 
 export function BookingForm({ onSuccess }: { onSuccess?: (reference: string) => void }) {
@@ -203,18 +204,22 @@ export function BookingForm({ onSuccess }: { onSuccess?: (reference: string) => 
           </div>
           <div>
             <Label htmlFor="vehicleType">Preferred vehicle</Label>
-            <Select
-              id="vehicleType"
-              name="vehicleType"
-              value={vehicleType}
-              onChange={(e) => setVehicleType(e.target.value as VehicleType)}
-            >
-              {VEHICLE_OPTIONS.map((v) => (
-                <option key={v.value} value={v.value}>
-                  {v.label} — {v.description}
-                </option>
-              ))}
-            </Select>
+            <div className="flex items-center gap-2">
+              <VehicleIcon type={vehicleType} className="h-6 w-6" />
+              <Select
+                id="vehicleType"
+                name="vehicleType"
+                value={vehicleType}
+                onChange={(e) => setVehicleType(e.target.value as VehicleType)}
+                className="flex-1"
+              >
+                {VEHICLE_OPTIONS.map((v) => (
+                  <option key={v.value} value={v.value}>
+                    {v.label} — {v.description}
+                  </option>
+                ))}
+              </Select>
+            </div>
           </div>
           <div>
             <Label htmlFor="cargoImage">Photo of goods (optional)</Label>

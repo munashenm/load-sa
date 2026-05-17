@@ -9,6 +9,7 @@ export default async function AdminBookingsPage() {
       include: {
         customer: { select: { fullName: true, email: true } },
         driver: { include: { user: { select: { fullName: true } } } },
+        _count: { select: { proofs: true } },
       },
     }),
     db.driverProfile.findMany({
@@ -30,6 +31,8 @@ export default async function AdminBookingsPage() {
     createdAt: b.createdAt.toISOString(),
     pickupCity: b.pickupCity,
     dropoffCity: b.dropoffCity,
+    paymentStatus: b.paymentStatus,
+    proofCount: b._count.proofs,
     customer: b.customer,
     driver: b.driver ? { id: b.driver.id, user: b.driver.user } : null,
   }));

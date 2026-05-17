@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { formatZAR } from "@/lib/sa-data";
+import { VehicleIcon } from "@/lib/vehicle-icons";
 import {
   bookingStatusLabels,
   cargoSizeLabels,
@@ -140,7 +141,8 @@ function JobCard({
           {job.pickupAddress} → {job.dropoffAddress}
         </p>
         <p className="mt-2 text-sm text-slate-400">{job.cargoDescription}</p>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 flex items-center gap-1 text-xs text-slate-500">
+          <VehicleIcon type={job.vehicleType} className="h-3.5 w-3.5" />
           {vehicleTypeLabels[job.vehicleType]} · {urgencyLabels[urgency]}
           {job.cargoSize && ` · ${cargoSizeLabels[job.cargoSize as CargoSize]}`}
           {job.weightKg != null && ` · ${job.weightKg} kg`}

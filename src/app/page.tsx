@@ -7,7 +7,9 @@ import {
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { VEHICLE_OPTIONS } from "@/lib/sa-data";
+import { DELIVERY_DESCRIPTION, VEHICLE_OPTIONS } from "@/lib/sa-data";
+import { VehicleIcon } from "@/lib/vehicle-icons";
+import type { VehicleType } from "@/lib/types";
 
 export default function HomePage() {
   return (
@@ -23,10 +25,10 @@ export default function HomePage() {
             Move anything, anywhere in{" "}
             <span className="text-amber-400">Mzansi</span>
           </h1>
-          <p className="mt-6 max-w-2xl text-lg text-slate-400">
-            Load SA connects customers with verified drivers — from motorcycles and
-            bakkies to heavy trucks running empty returns from Cape Town to Joburg and
-            every province in between.
+          <p className="mt-6 max-w-2xl text-lg text-slate-400">{DELIVERY_DESCRIPTION}</p>
+          <p className="mt-3 max-w-2xl text-sm text-slate-500">
+            From motorcycles and bakkies to heavy trucks — empty returns from Cape Town
+            to Joburg and every province in between.
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
             <Link href="/register?role=customer">
@@ -56,7 +58,7 @@ export default function HomePage() {
               key={v.value}
               className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5"
             >
-              <Truck className="mb-3 h-8 w-8 text-amber-400" />
+              <VehicleIcon type={v.value as VehicleType} className="mb-3 h-8 w-8" />
               <h3 className="font-semibold text-white">{v.label}</h3>
               <p className="mt-1 text-sm text-slate-400">{v.description}</p>
             </li>
@@ -68,7 +70,7 @@ export default function HomePage() {
               key={v.value}
               className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5"
             >
-              <Truck className="mb-3 h-8 w-8 text-amber-400" />
+              <VehicleIcon type={v.value as VehicleType} className="mb-3 h-8 w-8" />
               <h3 className="font-semibold text-white">{v.label}</h3>
               <p className="mt-1 text-sm text-slate-400">{v.description}</p>
             </li>

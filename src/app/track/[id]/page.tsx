@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BookingChat } from "@/components/chat/booking-chat";
 import { LiveTrack } from "@/components/customer/live-track";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -33,6 +34,9 @@ export default async function TrackPage({
       <h1 className="mt-4 text-2xl font-bold text-white">Track delivery</h1>
       <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
         <LiveTrack bookingId={id} />
+      </div>
+      <div className="mt-6">
+        <BookingChat bookingId={id} />
       </div>
     </div>
   );

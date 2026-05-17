@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { BookingChat } from "@/components/chat/booking-chat";
+import { ComplaintForm } from "@/components/complaints/complaint-form";
 import { Button } from "@/components/ui/button";
 import { Label, Textarea } from "@/components/ui/input";
 
@@ -40,6 +42,13 @@ export function ActiveJobPanel({
       setLoading(null);
       router.refresh();
     });
+  }
+
+  async function notifyEnRoute() {
+    setLoading("enroute");
+    await fetch(`/api/bookings/${bookingId}/en-route`, { method: "POST" });
+    setLoading(null);
+    router.refresh();
   }
 
   async function setStatus(next: string) {
@@ -104,13 +113,23 @@ export function ActiveJobPanel({
 
       <div className="flex flex-wrap gap-2">
         {status === "DRIVER_ASSIGNED" && (
-          <Button
-            className="!py-2 text-xs"
-            disabled={!!loading}
-            onClick={() => setStatus("PICKED_UP")}
-          >
-            Picked up
-          </Button>
+          <>
+            <Button
+              variant="secondary"
+              className="!py-2 text-xs"
+              disabled={!!loading}
+              onClick={notifyEnRoute}
+            >
+              {loading === "enroute" ? "…" : "En route to pickup"}
+            </Button>
+            <Button
+              className="!py-2 text-xs"
+              disabled={!!loading}
+              onClick={() => setStatus("PICKED_UP")}
+            >
+              Picked up
+            </Button>
+          </>
         )}
         {["PICKED_UP", "IN_TRANSIT"].includes(status) && (
           <Button
@@ -152,6 +171,10 @@ export function ActiveJobPanel({
           {loading === "proof" ? "Uploading…" : "Complete delivery"}
         </Button>
       </div>
+
+      <BookingChat bookingId={bookingId} />
+
+      <ComplaintForm bookingId={bookingId} bookingReference={reference} />
     </div>
   );
 }

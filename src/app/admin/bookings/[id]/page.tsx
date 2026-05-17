@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BookingChat } from "@/components/chat/booking-chat";
 import { BookingSummaryCard } from "@/components/booking-summary";
 import { db } from "@/lib/db";
 import { bookingStatusLabels } from "@/lib/labels";
@@ -38,6 +39,11 @@ export default async function AdminBookingDetailPage({
           Driver: {booking.driver.user.fullName} · {booking.driver.user.phone}
         </p>
       )}
+
+      <div id="chat" className="mt-8">
+        <h2 className="mb-3 text-lg font-semibold text-white">Chat history</h2>
+        <BookingChat bookingId={booking.id} />
+      </div>
     </div>
   );
 }

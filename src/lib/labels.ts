@@ -54,6 +54,20 @@ export const cargoSizeLabels: Record<CargoSize, string> = {
   OVERSIZED: "Oversized / special handling",
 };
 
+export const complaintStatusLabels: Record<string, string> = {
+  OPEN: "Open",
+  IN_REVIEW: "In Review",
+  RESOLVED: "Resolved",
+  REJECTED: "Rejected",
+};
+
+export const complaintPriorityLabels: Record<string, string> = {
+  LOW: "Low",
+  NORMAL: "Normal",
+  HIGH: "High",
+  URGENT: "Urgent",
+};
+
 export const urgencyLabels: Record<DeliveryUrgency, string> = {
   STANDARD: "Standard (1–3 days)",
   SAME_DAY: "Same day",

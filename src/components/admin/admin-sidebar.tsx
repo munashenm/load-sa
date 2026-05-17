@@ -10,6 +10,9 @@ import {
   Users,
   Settings,
   Shield,
+  MessageSquare,
+  AlertTriangle,
+  Bell,
   X,
 } from "lucide-react";
 
@@ -18,6 +21,9 @@ const links = [
   { href: "/admin/bookings", label: "Bookings", icon: Package },
   { href: "/admin/drivers", label: "Drivers", icon: Truck },
   { href: "/admin/customers", label: "Customers", icon: Users },
+  { href: "/admin/complaints", label: "Complaints", icon: AlertTriangle },
+  { href: "/admin/chats", label: "Chat monitoring", icon: MessageSquare },
+  { href: "/admin/notifications", label: "Notifications", icon: Bell },
   { href: "/admin/pricing", label: "Pricing Settings", icon: Settings },
   { href: "/admin/admins", label: "Admin Users", icon: Shield },
 ];

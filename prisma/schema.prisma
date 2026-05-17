@@ -23,6 +23,9 @@ model User {
   sessions           Session[]
   supportTickets     SupportTicket[]
   disputesRaised     Dispute[]        @relation("DisputeRaisedBy")
+  chatMessages       ChatMessage[]
+  complaintsRaised   Complaint[]
+  notifications      Notification[]
 }
 
 model Session {
@@ -116,6 +119,9 @@ model Booking {
   payment Payment?
   proofs  DeliveryProof[]
   disputes Dispute[]
+  chatMessages ChatMessage[]
+  complaints   Complaint[]
+  notifications Notification[]
 }
 
 model Payment {
@@ -179,6 +185,44 @@ model Dispute {
   resolution  String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  bookingId String
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  body      String
+  createdAt DateTime @default(now())
+}
+
+model Complaint {
+  id              String   @id @default(cuid())
+  bookingId       String
+  booking         Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  raisedById      String
+  raisedBy        User     @relation(fields: [raisedById], references: [id], onDelete: Cascade)
+  complainantType String
+  subject         String
+  description     String
+  priority        String   @default("NORMAL")
+  status          String   @default("OPEN")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookingId String?
+  booking   Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  type      String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
 model SupportTicket {

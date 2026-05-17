@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionUserFromRequest } from "@/lib/auth-request";
 import { db } from "@/lib/db";
+import { notifyCustomerForStatus } from "@/lib/notifications";
 import { applyOrderPricing } from "@/lib/platform";
 
 const ALLOWED = [
@@ -36,6 +37,16 @@ export async function PATCH(
     where: { id },
     data: { status },
   });
+
+  await notifyCustomerForStatus(
+    {
+      id: booking.id,
+      reference: booking.reference,
+      customerId: booking.customerId,
+      status,
+    },
+    booking.status,
+  );
 
   if (status === "DELIVERED" && booking.paymentStatus === "PAID") {
     await applyOrderPricing(id, booking.finalPrice ?? booking.estimatedPrice);

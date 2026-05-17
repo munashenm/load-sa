@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BookingChat } from "@/components/chat/booking-chat";
+import { ComplaintForm } from "@/components/complaints/complaint-form";
 import { BookingSummaryCard } from "@/components/booking-summary";
 import { requireUser } from "@/lib/auth";
+import { maskContactForBooking } from "@/lib/chat-access";
 import { db } from "@/lib/db";
 import { bookingStatusLabels } from "@/lib/labels";
 import type { BookingStatus } from "@/lib/types";
@@ -21,9 +24,14 @@ export default async function CustomerBookingDetailPage({
     },
   });
 
-  if (!booking) {
-    notFound();
-  }
+  if (!booking) notFound();
+
+  const driverContact = maskContactForBooking(
+    booking.driver?.user,
+    "CUSTOMER",
+    booking.paymentStatus,
+    false,
+  );
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
@@ -42,10 +50,18 @@ export default async function CustomerBookingDetailPage({
       {booking.driver && (
         <div className="mt-6 rounded-xl border border-emerald-800/40 bg-emerald-950/20 p-4">
           <h2 className="font-semibold text-emerald-300">Assigned driver</h2>
-          <p className="mt-1 text-white">{booking.driver.user.fullName}</p>
-          <p className="text-sm text-slate-400">{booking.driver.user.phone}</p>
+          <p className="mt-1 text-white">{driverContact?.fullName}</p>
+          <p className="text-sm text-slate-400">{driverContact?.phone}</p>
         </div>
       )}
+
+      <div className="mt-6">
+        <BookingChat bookingId={booking.id} />
+      </div>
+
+      <div className="mt-6">
+        <ComplaintForm bookingId={booking.id} bookingReference={booking.reference} />
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { BookingSummaryCard } from "@/components/booking-summary";
+import { NotificationCenter } from "@/components/customer/notification-center";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,10 @@ export default async function CustomerDashboardPage() {
             New booking
           </Button>
         </Link>
+      </div>
+
+      <div className="mt-8">
+        <NotificationCenter />
       </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">

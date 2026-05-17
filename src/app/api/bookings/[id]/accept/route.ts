@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionUserFromRequest } from "@/lib/auth-request";
 import { db } from "@/lib/db";
+import { notifyCustomer } from "@/lib/notifications";
 
 export async function POST(
   request: Request,
@@ -32,6 +33,13 @@ export async function POST(
       status: "DRIVER_ASSIGNED",
     },
   });
+
+  await notifyCustomer(
+    booking.customerId,
+    booking.id,
+    booking.reference,
+    "DRIVER_ACCEPTED",
+  );
 
   return NextResponse.json({ booking: updated });
 }
