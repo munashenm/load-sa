@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
@@ -30,9 +31,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-slate-950 text-slate-100 antialiased">
         <SiteHeader />
         <main className="flex-1">{children}</main>
-        <footer className="border-t border-slate-800 py-8 text-center text-sm text-slate-500">
-          Load SA · Serving all 9 provinces · Prices in ZAR
-        </footer>
+        <SiteFooter />
       </body>
     </html>
   );
