@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUserFromRequest } from "@/lib/auth-request";
 import { db } from "@/lib/db";
 import { applyOrderPricing } from "@/lib/platform";
 
@@ -15,7 +15,7 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const user = await getSessionUser();
+  const user = await getSessionUserFromRequest(request);
   const { id } = await params;
 
   if (!user?.driverProfile) {

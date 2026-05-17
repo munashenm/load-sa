@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { TrackMapDynamic } from "@/components/track-map-dynamic";
 import { bookingStatusLabels } from "@/lib/labels";
+import { resolveCityCoords } from "@/lib/sa-data";
 import type { BookingStatus } from "@/lib/types";
 
 type Booking = {
@@ -9,7 +11,9 @@ type Booking = {
   reference: string;
   status: string;
   pickupCity: string;
+  pickupProvince: string;
   dropoffCity: string;
+  dropoffProvince: string;
   driverLat: number | null;
   driverLng: number | null;
   lastLocationAt: string | null;
@@ -33,12 +37,30 @@ export function LiveTrack({ bookingId }: { bookingId: string }) {
     return () => clearInterval(t);
   }, [bookingId]);
 
+  const mapPoints = useMemo(() => {
+    if (!booking) return null;
+    const pickup = {
+      ...resolveCityCoords(booking.pickupCity, booking.pickupProvince),
+      label: booking.pickupCity,
+    };
+    const dropoff = {
+      ...resolveCityCoords(booking.dropoffCity, booking.dropoffProvince),
+      label: booking.dropoffCity,
+    };
+    const driver =
+      booking.driverLat != null && booking.driverLng != null
+        ? {
+            lat: booking.driverLat,
+            lng: booking.driverLng,
+            label: booking.driver?.user.fullName ?? "Driver",
+          }
+        : null;
+    return { pickup, dropoff, driver };
+  }, [booking]);
+
   if (!booking) {
     return <p className="text-slate-400">Loading tracking…</p>;
   }
-
-  const hasLocation =
-    booking.driverLat != null && booking.driverLng != null;
 
   return (
     <div className="space-y-4">
@@ -51,6 +73,9 @@ export function LiveTrack({ bookingId }: { bookingId: string }) {
         <span className="text-amber-300">
           {bookingStatusLabels[booking.status as BookingStatus]}
         </span>
+        {booking.paymentStatus === "PAID" && (
+          <span className="ml-2 text-emerald-400">· Paid</span>
+        )}
       </p>
 
       {booking.driver && (
@@ -59,33 +84,15 @@ export function LiveTrack({ bookingId }: { bookingId: string }) {
         </p>
       )}
 
-      {hasLocation ? (
-        <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4">
-          <p className="text-sm font-medium text-emerald-300">Live location</p>
-          <p className="mt-1 font-mono text-xs text-slate-400">
-            {booking.driverLat?.toFixed(5)}, {booking.driverLng?.toFixed(5)}
-          </p>
-          <a
-            className="mt-2 inline-block text-sm text-amber-400 hover:underline"
-            href={`https://www.google.com/maps?q=${booking.driverLat},${booking.driverLng}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Open in Google Maps →
-          </a>
-          {booking.lastLocationAt && (
-            <p className="mt-2 text-xs text-slate-500">
-              Updated {new Date(booking.lastLocationAt).toLocaleString("en-ZA")}
-            </p>
-          )}
-        </div>
-      ) : (
-        <p className="text-sm text-slate-500">
-          Waiting for driver GPS — driver app shares location when job is active.
-        </p>
+      {mapPoints && (
+        <TrackMapDynamic
+          pickup={mapPoints.pickup}
+          dropoff={mapPoints.dropoff}
+          driver={mapPoints.driver}
+        />
       )}
 
-      <p className="text-xs text-slate-500">Refreshes every 8 seconds</p>
+      <p className="text-xs text-slate-500">Map refreshes every 8 seconds</p>
     </div>
   );
 }

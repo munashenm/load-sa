@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "Load SA Driver",
+    "slug": "loadsa-driver",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "loadsa-driver",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "za.loadsa.driver",
+      "infoPlist": {
+        "UIBackgroundModes": ["location"],
+        "NSLocationWhenInUseUsageDescription": "Share your location with customers during active deliveries.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Background location for live tracking while on a job."
+      }
+    },
+    "android": {
+      "package": "za.loadsa.driver",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Load SA needs background location during active deliveries.",
+          "isAndroidBackgroundLocationEnabled": true
+        }
+      ]
+    ]
+  }
+}

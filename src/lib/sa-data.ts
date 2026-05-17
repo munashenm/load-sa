@@ -125,3 +125,32 @@ export function normalizePhone(phone: string): string {
   }
   return phone.trim();
 }
+
+export const CITY_COORDINATES: Record<string, { lat: number; lng: number }> = {
+  Johannesburg: { lat: -26.2041, lng: 28.0473 },
+  Pretoria: { lat: -25.7479, lng: 28.2293 },
+  "Cape Town": { lat: -33.9249, lng: 18.4241 },
+  Durban: { lat: -29.8587, lng: 31.0218 },
+  Gqeberha: { lat: -33.9608, lng: 25.6022 },
+  Bloemfontein: { lat: -29.0852, lng: 26.1596 },
+  Polokwane: { lat: -23.9045, lng: 29.4689 },
+};
+
+const PROVINCE_CENTER: Record<string, { lat: number; lng: number }> = {
+  Gauteng: { lat: -26.2, lng: 28.04 },
+  "Western Cape": { lat: -33.92, lng: 18.42 },
+  "KwaZulu-Natal": { lat: -29.6, lng: 31.0 },
+  "Eastern Cape": { lat: -32.0, lng: 26.0 },
+  "Free State": { lat: -29.1, lng: 26.2 },
+  Limpopo: { lat: -23.9, lng: 29.5 },
+  Mpumalanga: { lat: -25.5, lng: 30.5 },
+  "Northern Cape": { lat: -29.0, lng: 22.0 },
+  "North West": { lat: -26.0, lng: 25.5 },
+};
+
+export function resolveCityCoords(city: string, province: string) {
+  return (
+    CITY_COORDINATES[city] ??
+    PROVINCE_CENTER[province] ?? { lat: -29.0, lng: 24.0 }
+  );
+}

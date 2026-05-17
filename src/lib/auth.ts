@@ -52,31 +52,11 @@ export async function getSessionUser(): Promise<
     })
   | null
 > {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(SESSION_COOKIE)?.value;
-  if (!token) return null;
-
-  const session = await db.session.findUnique({
-    where: { token },
-    include: {
-      user: {
-        include: {
-          driverProfile: {
-            select: { id: true, verificationStatus: true, isAvailable: true },
-          },
-        },
-      },
-    },
-  });
-
-  if (!session || session.expiresAt < new Date()) {
-    if (session) {
-      await db.session.delete({ where: { id: session.id } });
-    }
-    return null;
-  }
-
-  return session.user;
+  const { getTokenFromRequest, getUserFromToken } = await import(
+    "@/lib/auth-request"
+  );
+  const token = await getTokenFromRequest();
+  return getUserFromToken(token);
 }
 
 export async function requireUser(roles?: UserRole[]) {

@@ -105,6 +105,7 @@ export default async function DriverPage() {
             bookingId={activeJob.id}
             reference={activeJob.reference}
             status={activeJob.status}
+            dropoffCity={activeJob.dropoffCity}
           />
         </section>
       )}

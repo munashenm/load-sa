@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUserFromRequest } from "@/lib/auth-request";
 import { db } from "@/lib/db";
 
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const user = await getSessionUser();
+  const user = await getSessionUserFromRequest(request);
   const { id } = await params;
 
   if (!user?.driverProfile) {
@@ -25,6 +25,7 @@ export async function POST(
       bookingId: id,
       notes: notes ?? "Delivery completed",
       imageUrl: imageUrl ?? null,
+      type: imageUrl ? "PHOTO" : "NOTE",
     },
   });
 

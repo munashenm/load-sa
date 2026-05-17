@@ -3,25 +3,28 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input, Label, Textarea } from "@/components/ui/input";
+import { Label, Textarea } from "@/components/ui/input";
 
 export function ActiveJobPanel({
   bookingId,
   reference,
   status,
+  dropoffCity,
 }: {
   bookingId: string;
   reference: string;
   status: string;
+  dropoffCity: string;
 }) {
   const router = useRouter();
   const [notes, setNotes] = useState("");
+  const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
 
   async function shareLocation() {
     setLoading("gps");
     if (!navigator.geolocation) {
-      alert("GPS not available in this browser");
+      alert("GPS not available");
       setLoading(null);
       return;
     }
@@ -52,16 +55,28 @@ export function ActiveJobPanel({
 
   async function submitProof() {
     setLoading("proof");
+    let imageUrl: string | undefined;
+
+    if (file) {
+      const form = new FormData();
+      form.append("file", file);
+      const up = await fetch("/api/upload", { method: "POST", body: form });
+      if (up.ok) {
+        const data = await up.json();
+        imageUrl = data.url;
+      }
+    }
+
     await fetch(`/api/bookings/${bookingId}/proof`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ notes }),
+      body: JSON.stringify({ notes, imageUrl }),
     });
     setLoading(null);
     router.refresh();
   }
 
-  const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(reference)}`;
+  const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dropoffCity)}`;
 
   return (
     <div className="rounded-2xl border border-emerald-800/40 bg-emerald-950/20 p-4 space-y-4">
@@ -74,7 +89,7 @@ export function ActiveJobPanel({
         rel="noopener noreferrer"
         className="block text-sm text-amber-400 hover:underline"
       >
-        Navigate (Google Maps) →
+        Navigate to {dropoffCity} (Google Maps) →
       </a>
 
       <Button
@@ -84,7 +99,7 @@ export function ActiveJobPanel({
         disabled={!!loading}
         onClick={shareLocation}
       >
-        {loading === "gps" ? "Sharing…" : "Share my location (customer sees live)"}
+        {loading === "gps" ? "Sharing…" : "Share live GPS"}
       </Button>
 
       <div className="flex flex-wrap gap-2">
@@ -109,11 +124,22 @@ export function ActiveJobPanel({
       </div>
 
       <div>
-        <Label htmlFor="proof">Proof of delivery</Label>
+        <Label htmlFor="proof-photo">Proof photo</Label>
+        <input
+          id="proof-photo"
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="mt-1 block w-full text-sm text-slate-400"
+          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+        />
+        <div className="mt-3">
+          <Label htmlFor="proof">Notes</Label>
+        </div>
         <Textarea
           id="proof"
           rows={2}
-          placeholder="Recipient name, photo URL, or notes"
+          placeholder="Recipient name, condition of goods…"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
         />
