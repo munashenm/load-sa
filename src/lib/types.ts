@@ -21,3 +21,8 @@ export type BookingStatus =
   | "IN_TRANSIT"
   | "DELIVERED"
   | "CANCELLED";
+
+export type PaymentStatus = "UNPAID" | "PENDING" | "PAID" | "REFUNDED" | "FAILED";
+export type PayoutStatus = "PENDING" | "PROCESSING" | "PAID" | "FAILED";
+export type DisputeStatus = "OPEN" | "IN_REVIEW" | "RESOLVED" | "REJECTED";
+export type TicketStatus = "OPEN" | "IN_PROGRESS" | "CLOSED";

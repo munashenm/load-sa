@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AvailabilityToggle } from "@/components/availability-toggle";
 import { DriverJobs } from "@/components/driver-jobs";
+import { ActiveJobPanel } from "@/components/driver/active-job-panel";
 import { StatusBadge } from "@/components/status-badge";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -42,6 +43,10 @@ export default async function DriverPage() {
     orderBy: { createdAt: "desc" },
     take: 10,
   });
+
+  const activeJob = myJobs.find(
+    (j) => j.status !== "DELIVERED" && j.status !== "CANCELLED",
+  );
 
   const needsVerification =
     status === "PENDING" ||
@@ -91,6 +96,17 @@ export default async function DriverPage() {
         <p className="mt-6 rounded-xl bg-red-950/40 px-4 py-3 text-sm text-red-300">
           {profile.reviewNotes}
         </p>
+      )}
+
+      {activeJob && status === "APPROVED" && (
+        <section className="mt-8">
+          <h2 className="mb-3 text-lg font-semibold text-white">Active job</h2>
+          <ActiveJobPanel
+            bookingId={activeJob.id}
+            reference={activeJob.reference}
+            status={activeJob.status}
+          />
+        </section>
       )}
 
       <div className="mt-10">

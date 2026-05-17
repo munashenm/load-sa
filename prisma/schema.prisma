@@ -18,8 +18,10 @@ model User {
   updatedAt    DateTime @updatedAt
 
   driverProfile      DriverProfile?
-  bookingsAsCustomer Booking[]      @relation("CustomerBookings")
+  bookingsAsCustomer Booking[]       @relation("CustomerBookings")
   sessions           Session[]
+  supportTickets     SupportTicket[]
+  disputesRaised     Dispute[]        @relation("DisputeRaisedBy")
 }
 
 model Session {
@@ -50,6 +52,7 @@ model DriverProfile {
 
   vehicles Vehicle[]
   bookings Booking[] @relation("DriverBookings")
+  payouts  Payout[]
 }
 
 model Vehicle {
@@ -66,6 +69,7 @@ model Vehicle {
   createdAt       DateTime      @default(now())
 }
 
+/// Order / delivery request (customer-facing: "delivery")
 model Booking {
   id         String         @id @default(cuid())
   reference  String         @unique
@@ -86,9 +90,93 @@ model Booking {
   cargoDescription String
   weightKg         Int?
   estimatedPrice   Float
+  finalPrice       Float?
   currency         String @default("ZAR")
+
+  commissionPercent Float?
+  platformFee       Float?
+  driverEarnings    Float?
+
+  paymentStatus String @default("UNPAID")
+
+  driverLat        Float?
+  driverLng        Float?
+  lastLocationAt   DateTime?
 
   scheduledAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  payment Payment?
+  proofs  DeliveryProof[]
+  disputes Dispute[]
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  bookingId String   @unique
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  amount    Float
+  currency  String   @default("ZAR")
+  status    String   @default("PENDING")
+  provider  String   @default("PAYFAST")
+  providerRef String?
+  paidAt    DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Payout {
+  id              String        @id @default(cuid())
+  driverProfileId String
+  driverProfile   DriverProfile @relation(fields: [driverProfileId], references: [id], onDelete: Cascade)
+  amount          Float
+  currency        String        @default("ZAR")
+  status          String        @default("PENDING")
+  periodStart     DateTime?
+  periodEnd       DateTime?
+  paidAt          DateTime?
+  reference       String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model PlatformSettings {
+  id                 String   @id @default("default")
+  commissionPercent  Float    @default(15)
+  updatedAt          DateTime @default(now()) @updatedAt
+}
+
+model DeliveryProof {
+  id          String   @id @default(cuid())
+  bookingId   String
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  type        String   @default("PHOTO")
+  notes       String?
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+}
+
+model Dispute {
+  id          String   @id @default(cuid())
+  bookingId   String
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  raisedById  String
+  raisedBy    User     @relation("DisputeRaisedBy", fields: [raisedById], references: [id])
+  reason      String
+  status      String   @default("OPEN")
+  resolution  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SupportTicket {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   String
+  message   String
+  status    String   @default("OPEN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

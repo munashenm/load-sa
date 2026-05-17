@@ -21,6 +21,14 @@ export async function SiteHeader() {
         <nav className="flex items-center gap-2 sm:gap-3">
           {user ? (
             <>
+              {user.role === "ADMIN" && (
+                <Link
+                  href="/admin"
+                  className="hidden text-sm text-slate-300 hover:text-white sm:block"
+                >
+                  Admin
+                </Link>
+              )}
               {user.role === "DRIVER" ? (
                 <Link
                   href="/driver"
@@ -28,14 +36,14 @@ export async function SiteHeader() {
                 >
                   Driver hub
                 </Link>
-              ) : (
+              ) : user.role === "CUSTOMER" ? (
                 <Link
                   href="/book"
                   className="hidden text-sm text-slate-300 hover:text-white sm:block"
                 >
                   Book delivery
                 </Link>
-              )}
+              ) : null}
               <form action="/api/auth/logout" method="GET">
                 <Button
                   type="submit"

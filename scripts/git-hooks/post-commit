@@ -1,0 +1,8 @@
+#!/bin/sh
+# Auto-push to GitHub after every local commit (for Railway deploy)
+branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+if [ -z "$branch" ]; then
+  exit 0
+fi
+echo "post-commit: pushing to origin/$branch ..."
+git push origin "$branch"

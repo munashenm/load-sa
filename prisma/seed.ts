@@ -6,6 +6,12 @@ const db = new PrismaClient();
 async function main() {
   const passwordHash = await bcrypt.hash("demo12345", 12);
 
+  await db.platformSettings.upsert({
+    where: { id: "default" },
+    update: {},
+    create: { id: "default", commissionPercent: 15 },
+  });
+
   await db.user.upsert({
     where: { email: "admin@loadsa.co.za" },
     update: {},

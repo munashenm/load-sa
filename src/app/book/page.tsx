@@ -5,6 +5,7 @@ import { formatZAR } from "@/lib/sa-data";
 import { bookingStatusLabels, vehicleTypeLabels } from "@/lib/labels";
 import type { BookingStatus, VehicleType } from "@/lib/types";
 import { StatusBadge } from "@/components/status-badge";
+import { BookingActions } from "@/components/customer/booking-actions";
 
 export default async function BookPage() {
   const user = await requireUser(["CUSTOMER"]);
@@ -55,6 +56,11 @@ export default async function BookPage() {
                   {vehicleTypeLabels[b.vehicleType as VehicleType]} ·{" "}
                   {formatZAR(b.estimatedPrice)}
                 </p>
+                <BookingActions
+                  bookingId={b.id}
+                  paymentStatus={b.paymentStatus}
+                  amount={b.estimatedPrice}
+                />
               </li>
             ))}
           </ul>
