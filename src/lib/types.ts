@@ -1,4 +1,16 @@
 export type UserRole = "CUSTOMER" | "DRIVER" | "ADMIN";
+export type ServiceType = "FREIGHT" | "SHUTTLE";
+export type ShuttleTripType =
+  | "AIRPORT_PICKUP"
+  | "AIRPORT_DROPOFF"
+  | "POINT_TO_POINT"
+  | "PRIVATE_HIRE_HOURLY";
+export type ShuttleVehicleClass =
+  | "SEDAN"
+  | "SUV"
+  | "LUXURY"
+  | "MINIBUS_7"
+  | "MINIBUS_16";
 export type VerificationStatus =
   | "PENDING"
   | "UNDER_REVIEW"

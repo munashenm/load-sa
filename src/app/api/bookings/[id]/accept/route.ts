@@ -3,6 +3,7 @@ import { getSessionUserFromRequest } from "@/lib/auth-request";
 import { db } from "@/lib/db";
 import {
   canAcceptJobs,
+  driverCanTakeService,
   jobMatchesVehicle,
   primaryVehicleType,
 } from "@/lib/driver-portal";
@@ -34,6 +35,18 @@ export async function POST(
   const booking = await db.booking.findUnique({ where: { id } });
   if (!booking || booking.status !== "SEARCHING_DRIVER") {
     return NextResponse.json({ error: "Job not available" }, { status: 404 });
+  }
+
+  if (!driverCanTakeService(profile, booking.serviceType)) {
+    return NextResponse.json(
+      {
+        error:
+          booking.serviceType === "SHUTTLE"
+            ? "Enable shuttle service and add PDP licence on your profile"
+            : "Freight jobs not enabled on your profile",
+      },
+      { status: 403 },
+    );
   }
 
   const vType = primaryVehicleType(profile.vehicles);

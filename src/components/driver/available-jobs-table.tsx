@@ -3,7 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { urgencyLabels, vehicleTypeLabels } from "@/lib/labels";
+import { serviceTypeLabels, shuttleTripLabels, urgencyLabels, vehicleTypeLabels } from "@/lib/labels";
+import type { ServiceType, ShuttleTripType } from "@/lib/types";
 import { formatZAR } from "@/lib/sa-data";
 import { VehicleIcon } from "@/lib/vehicle-icons";
 import type { DeliveryUrgency, VehicleType } from "@/lib/types";
@@ -11,6 +12,8 @@ import type { DeliveryUrgency, VehicleType } from "@/lib/types";
 export type AvailableJob = {
   id: string;
   reference: string;
+  serviceType?: string;
+  shuttleTripType?: string | null;
   pickupCity: string;
   pickupProvince: string;
   dropoffCity: string;
@@ -51,6 +54,7 @@ export function AvailableJobsTable({
       <table className="w-full min-w-[960px] text-left text-sm">
         <thead className="bg-slate-900/80 text-slate-400">
           <tr>
+            <th className="px-3 py-3">Type</th>
             <th className="px-3 py-3">Booking ID</th>
             <th className="px-3 py-3">Pickup</th>
             <th className="px-3 py-3">Drop-off</th>
@@ -65,6 +69,17 @@ export function AvailableJobsTable({
         <tbody>
           {jobs.map((j) => (
             <tr key={j.id} className="border-t border-slate-800/80">
+              <td className="px-3 py-3">
+                <span
+                  className={`rounded px-2 py-0.5 text-xs ${
+                    j.serviceType === "SHUTTLE"
+                      ? "bg-sky-500/20 text-sky-300"
+                      : "bg-slate-700 text-slate-300"
+                  }`}
+                >
+                  {serviceTypeLabels[(j.serviceType as ServiceType) ?? "FREIGHT"]}
+                </span>
+              </td>
               <td className="px-3 py-3 font-mono text-amber-400">{j.reference}</td>
               <td className="px-3 py-3 text-slate-300">
                 {j.pickupCity}, {j.pickupProvince}

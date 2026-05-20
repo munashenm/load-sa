@@ -99,6 +99,25 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ profile: updated });
   }
 
+  if (body.services) {
+    const updated = await db.driverProfile.update({
+      where: { userId: user.id },
+      data: {
+        offersFreight:
+          body.services.offersFreight !== undefined
+            ? Boolean(body.services.offersFreight)
+            : profile.offersFreight,
+        offersShuttle:
+          body.services.offersShuttle !== undefined
+            ? Boolean(body.services.offersShuttle)
+            : profile.offersShuttle,
+        pdpLicenceNumber:
+          body.services.pdpLicenceNumber ?? profile.pdpLicenceNumber,
+      },
+    });
+    return NextResponse.json({ profile: updated });
+  }
+
   if (body.bank) {
     const parsed = driverBankSchema.safeParse(body.bank);
     if (!parsed.success) {

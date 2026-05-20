@@ -2,12 +2,14 @@ import Link from "next/link";
 import {
   ArrowRight,
   MapPin,
+  Plane,
   ShieldCheck,
   Truck,
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DELIVERY_DESCRIPTION, VEHICLE_OPTIONS } from "@/lib/sa-data";
+import { SHUTTLE_DESCRIPTION } from "@/lib/shuttle-data";
 import { VehicleIcon } from "@/lib/vehicle-icons";
 import type { VehicleType } from "@/lib/types";
 
@@ -42,6 +44,19 @@ export default function HomePage() {
               </Button>
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl border-b border-slate-800 px-4 py-16 sm:px-6">
+        <div className="flex flex-col items-center text-center">
+          <Plane className="h-10 w-10 text-sky-400" />
+          <h2 className="mt-4 text-2xl font-bold text-white">Load SA Shuttle</h2>
+          <p className="mt-2 max-w-xl text-slate-400">{SHUTTLE_DESCRIPTION}</p>
+          <Link href="/register?role=customer" className="mt-6">
+            <Button variant="secondary" className="gap-2">
+              Book airport transfer <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </section>
 

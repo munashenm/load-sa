@@ -16,6 +16,37 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Enter your password"),
 });
 
+export const shuttleBookingSchema = z.object({
+  pickupAddress: z.string().min(5),
+  pickupCity: z.string().min(2),
+  pickupProvince: provinceEnum,
+  dropoffAddress: z.string().min(5),
+  dropoffCity: z.string().min(2),
+  dropoffProvince: provinceEnum,
+  shuttleTripType: z.enum([
+    "AIRPORT_PICKUP",
+    "AIRPORT_DROPOFF",
+    "POINT_TO_POINT",
+    "PRIVATE_HIRE_HOURLY",
+  ]),
+  shuttleVehicleClass: z.enum([
+    "SEDAN",
+    "SUV",
+    "LUXURY",
+    "MINIBUS_7",
+    "MINIBUS_16",
+  ]),
+  airportCode: z.string().max(8).optional(),
+  flightNumber: z.string().max(20).optional(),
+  passengerCount: z.coerce.number().int().min(1).max(16).default(1),
+  luggagePieces: z.coerce.number().int().min(0).max(20).optional(),
+  hireHours: z.coerce.number().min(2).max(12).optional(),
+  passengerNotes: z.string().max(500).optional(),
+  urgency: z.enum(["STANDARD", "SAME_DAY", "EXPRESS"]).default("STANDARD"),
+  scheduledAt: z.string().optional(),
+  isNightDelivery: z.coerce.boolean().optional(),
+});
+
 export const bookingSchema = z.object({
   pickupAddress: z.string().min(5),
   pickupCity: z.string().min(2),

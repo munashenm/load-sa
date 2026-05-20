@@ -51,7 +51,7 @@ export async function SiteHeader() {
                     href="/book"
                     className="hidden text-sm text-slate-300 hover:text-white sm:block"
                   >
-                    New booking
+                    Book
                   </Link>
                 </>
               ) : null}

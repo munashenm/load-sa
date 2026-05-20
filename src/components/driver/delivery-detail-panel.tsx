@@ -7,7 +7,7 @@ import { ComplaintForm } from "@/components/complaints/complaint-form";
 import { EmergencyButton } from "@/components/safety/emergency-button";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
-import { bookingStatusLabels } from "@/lib/labels";
+import { bookingStatusLabels, shuttleStatusLabels } from "@/lib/labels";
 import type { BookingStatus } from "@/lib/types";
 
 const NEXT_STATUS: Partial<Record<BookingStatus, BookingStatus>> = {
@@ -29,6 +29,7 @@ export function DeliveryDetailPanel({
   hasDeliveryProof,
   customerName,
   customerPhone,
+  serviceType = "FREIGHT",
 }: {
   bookingId: string;
   reference: string;
@@ -40,7 +41,10 @@ export function DeliveryDetailPanel({
   hasDeliveryProof: boolean;
   customerName: string;
   customerPhone: string;
+  serviceType?: string;
 }) {
+  const statusLabels =
+    serviceType === "SHUTTLE" ? { ...bookingStatusLabels, ...shuttleStatusLabels } : bookingStatusLabels;
   const router = useRouter();
   const [notes, setNotes] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -140,7 +144,7 @@ export function DeliveryDetailPanel({
       <div className="rounded-2xl border border-emerald-800/40 bg-emerald-950/20 p-5">
         <p className="font-mono text-sm text-emerald-400">{reference}</p>
         <p className="mt-1 text-lg font-semibold text-white">
-          {bookingStatusLabels[st] ?? status}
+          {statusLabels[st] ?? status}
         </p>
         <p className="mt-2 text-sm text-slate-400">
           Customer: {customerName} · {customerPhone}
@@ -186,7 +190,7 @@ export function DeliveryDetailPanel({
             >
               {loading === next
                 ? "Updating…"
-                : `Mark as ${bookingStatusLabels[next]}`}
+                : `Mark as ${statusLabels[next]}`}
             </Button>
           )}
 

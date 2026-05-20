@@ -36,6 +36,16 @@ export function canAcceptJobs(profile: {
   return canGoOnline(profile) && profile.isAvailable;
 }
 
+export function driverCanTakeService(
+  profile: { offersFreight: boolean; offersShuttle: boolean; pdpLicenceNumber?: string | null },
+  serviceType: string,
+): boolean {
+  if (serviceType === "SHUTTLE") {
+    return profile.offersShuttle && Boolean(profile.pdpLicenceNumber);
+  }
+  return profile.offersFreight;
+}
+
 export function jobMatchesVehicle(
   bookingVehicle: string,
   driverVehicle: VehicleType | null,
@@ -54,6 +64,11 @@ export function jobMatchesVehicle(
 export async function getAvailableJobsForDriver(
   driverProfileId: string,
   vehicleType: VehicleType | null,
+  profile?: {
+    offersFreight: boolean;
+    offersShuttle: boolean;
+    pdpLicenceNumber?: string | null;
+  },
 ) {
   const declined = await db.bookingDecline.findMany({
     where: { driverProfileId },
@@ -70,7 +85,10 @@ export async function getAvailableJobsForDriver(
     take: 100,
   });
 
-  return open.filter((b) => jobMatchesVehicle(b.vehicleType, vehicleType));
+  return open.filter((b) => {
+    if (profile && !driverCanTakeService(profile, b.serviceType)) return false;
+    return jobMatchesVehicle(b.vehicleType, vehicleType);
+  });
 }
 
 export function distanceLabel(

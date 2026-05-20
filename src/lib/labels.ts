@@ -3,6 +3,8 @@ import type {
   CargoSize,
   DeliveryUrgency,
   LoadPreference,
+  ServiceType,
+  ShuttleTripType,
   UserRole,
   VehicleType,
   VerificationStatus,
@@ -69,6 +71,26 @@ export const complaintPriorityLabels: Record<string, string> = {
   NORMAL: "Normal",
   HIGH: "High",
   URGENT: "Urgent",
+};
+
+export const serviceTypeLabels: Record<ServiceType, string> = {
+  FREIGHT: "Freight / delivery",
+  SHUTTLE: "Shuttle & private hire",
+};
+
+export const shuttleTripLabels: Record<ShuttleTripType, string> = {
+  AIRPORT_PICKUP: "Airport pickup",
+  AIRPORT_DROPOFF: "To airport",
+  POINT_TO_POINT: "Point to point",
+  PRIVATE_HIRE_HOURLY: "Private hire",
+};
+
+export const shuttleStatusLabels: Partial<Record<BookingStatus, string>> = {
+  EN_ROUTE_PICKUP: "On the way to pickup",
+  PICKED_UP: "Passengers on board",
+  IN_TRANSIT: "En route",
+  NEAR_DESTINATION: "Arriving soon",
+  DELIVERED: "Trip completed",
 };
 
 export const urgencyLabels: Record<DeliveryUrgency, string> = {

@@ -16,17 +16,19 @@ export default async function DriverJobsPage() {
   if (!profile) return null;
 
   const vType = primaryVehicleType(profile.vehicles);
-  const raw = await getAvailableJobsForDriver(profile.id, vType);
+  const raw = await getAvailableJobsForDriver(profile.id, vType, profile);
 
   const jobs = raw.map((b) => ({
     id: b.id,
     reference: b.reference,
+    serviceType: b.serviceType,
+    shuttleTripType: b.shuttleTripType,
     pickupCity: b.pickupCity,
     pickupProvince: b.pickupProvince,
     dropoffCity: b.dropoffCity,
     dropoffProvince: b.dropoffProvince,
     distanceLabel: distanceLabel(b.pickupProvince, b.dropoffProvince),
-    cargoDescription: b.cargoDescription,
+    cargoDescription: b.cargoDescription ?? b.passengerNotes ?? "Shuttle trip",
     vehicleType: b.vehicleType,
     estimatedPrice: b.estimatedPrice,
     urgency: b.urgency,

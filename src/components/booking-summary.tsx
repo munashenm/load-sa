@@ -4,11 +4,20 @@ import { BookingActions } from "@/components/customer/booking-actions";
 import {
   bookingStatusLabels,
   cargoSizeLabels,
+  serviceTypeLabels,
+  shuttleTripLabels,
   urgencyLabels,
   vehicleTypeLabels,
 } from "@/lib/labels";
 import { formatZAR } from "@/lib/sa-data";
-import type { BookingStatus, CargoSize, DeliveryUrgency, VehicleType } from "@/lib/types";
+import type {
+  BookingStatus,
+  CargoSize,
+  DeliveryUrgency,
+  ServiceType,
+  ShuttleTripType,
+  VehicleType,
+} from "@/lib/types";
 
 export type BookingSummaryData = {
   id: string;
@@ -22,7 +31,11 @@ export type BookingSummaryData = {
   dropoffCity: string;
   dropoffProvince: string;
   vehicleType: string;
-  cargoDescription: string;
+  serviceType?: string;
+  shuttleTripType?: string | null;
+  airportCode?: string | null;
+  passengerCount?: number;
+  cargoDescription?: string | null;
   cargoSize?: string | null;
   cargoDimensions?: string | null;
   cargoImageUrl?: string | null;
@@ -72,6 +85,16 @@ export function BookingSummaryCard({
         {booking.pickupAddress} → {booking.dropoffAddress}
       </p>
 
+      {booking.serviceType === "SHUTTLE" && (
+        <p className="mt-2 text-xs font-medium text-sky-400">
+          {serviceTypeLabels.SHUTTLE}
+          {booking.shuttleTripType &&
+            ` · ${shuttleTripLabels[booking.shuttleTripType as ShuttleTripType]}`}
+          {booking.airportCode && ` · ${booking.airportCode}`}
+          {booking.passengerCount != null && ` · ${booking.passengerCount} pax`}
+        </p>
+      )}
+
       <dl className="mt-3 grid gap-1 text-xs text-slate-400 sm:grid-cols-2">
         <div>
           <dt className="text-slate-500">Vehicle</dt>
@@ -107,7 +130,9 @@ export function BookingSummaryCard({
         )}
       </dl>
 
-      <p className="mt-2 line-clamp-2 text-sm text-slate-400">{booking.cargoDescription}</p>
+      {booking.cargoDescription && (
+        <p className="mt-2 line-clamp-2 text-sm text-slate-400">{booking.cargoDescription}</p>
+      )}
       {booking.cargoDimensions && (
         <p className="text-xs text-slate-500">Dimensions: {booking.cargoDimensions}</p>
       )}

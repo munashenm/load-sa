@@ -64,6 +64,7 @@ export default async function DriverDeliveryDetailPage({
           hasDeliveryProof={hasDeliveryProof}
           customerName={customer?.fullName ?? "Customer"}
           customerPhone={customer?.phone ?? "—"}
+          serviceType={booking.serviceType}
         />
       </div>
     </div>

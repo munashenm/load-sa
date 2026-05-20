@@ -1,3 +1,4 @@
+import { DriverShuttleSettings } from "@/components/driver/driver-shuttle-settings";
 import { DriverDocumentUpload } from "@/components/driver/driver-document-upload";
 import { DriverVerificationForm } from "@/components/driver-verification-form";
 import { StatusBadge } from "@/components/status-badge";
@@ -42,6 +43,16 @@ export default async function DriverProfilePage() {
           {profile.reviewNotes}
         </p>
       )}
+
+      <section className="mt-8 max-w-2xl">
+        <DriverShuttleSettings
+          defaults={{
+            offersFreight: profile.offersFreight,
+            offersShuttle: profile.offersShuttle,
+            pdpLicenceNumber: profile.pdpLicenceNumber,
+          }}
+        />
+      </section>
 
       <section className="mt-8 max-w-2xl">
         <h2 className="text-lg font-semibold text-white">Documents</h2>

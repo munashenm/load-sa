@@ -46,7 +46,7 @@ export default async function DriverOverviewPage() {
   if (!profile) return null;
 
   const vType = primaryVehicleType(profile.vehicles);
-  const availableJobs = await getAvailableJobsForDriver(profile.id, vType);
+  const availableJobs = await getAvailableJobsForDriver(profile.id, vType, profile);
   const earnings = await getDriverEarningsStats(profile.id);
 
   const activeCount = await db.booking.count({

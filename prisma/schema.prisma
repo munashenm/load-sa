@@ -70,6 +70,9 @@ model DriverProfile {
   vehicleRegistrationUrl String?
   vehiclePhotosJson  String?
   walletBalance      Float     @default(0)
+  offersFreight      Boolean   @default(true)
+  offersShuttle      Boolean   @default(false)
+  pdpLicenceNumber   String?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
@@ -114,6 +117,7 @@ model Booking {
   driverId   String?
   driver     DriverProfile? @relation("DriverBookings", fields: [driverId], references: [id])
   status     String         @default("SEARCHING_DRIVER")
+  serviceType String        @default("FREIGHT")
 
   pickupAddress   String
   pickupCity      String
@@ -123,7 +127,15 @@ model Booking {
   dropoffProvince String
 
   vehicleType      String
-  cargoDescription String
+  cargoDescription String?
+  shuttleTripType     String?
+  shuttleVehicleClass String?
+  airportCode         String?
+  flightNumber        String?
+  passengerCount      Int      @default(1)
+  luggagePieces       Int?
+  hireHours           Float?
+  passengerNotes      String?
   cargoSize        String?
   cargoDimensions  String?
   cargoImageUrl    String?
