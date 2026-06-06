@@ -47,7 +47,8 @@ export function DriverSidebar({
       )}
       <aside
         className={clsx(
-          "fixed inset-y-0 left-0 z-50 w-64 border-r border-slate-800 bg-slate-950 transition-transform lg:static lg:z-0 lg:translate-x-0",
+          "fixed bottom-0 left-0 top-14 z-50 w-64 border-r border-slate-800 bg-slate-950 transition-transform lg:static lg:top-auto lg:z-0 lg:translate-x-0 lg:pb-0",
+          "pb-[var(--portal-bottom-nav-h)] lg:pb-0",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >

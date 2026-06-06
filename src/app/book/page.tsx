@@ -6,7 +6,7 @@ export default async function BookHubPage() {
   await requireUser(["CUSTOMER"], "/book");
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+    <div className="px-4 py-6 sm:px-6">
       <h1 className="text-2xl font-bold text-white">What do you need?</h1>
       <p className="mt-2 text-slate-400">
         Choose freight delivery or passenger shuttle & private hire.

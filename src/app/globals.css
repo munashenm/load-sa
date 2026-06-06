@@ -3,6 +3,10 @@
 :root {
   --background: #020617;
   --foreground: #f1f5f9;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --portal-header-h: 3.5rem;
+  --portal-bottom-nav-h: calc(4.25rem + var(--safe-bottom));
 }
 
 @theme inline {
@@ -16,6 +20,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html.theme-light {
@@ -26,4 +31,39 @@ html.theme-light {
 html.theme-light body {
   background: #f8fafc;
   color: #0f172a;
+}
+
+/* Portal layouts: full viewport + safe areas + bottom nav clearance */
+.portal-main {
+  min-height: calc(100dvh - var(--portal-header-h));
+  padding-bottom: var(--portal-bottom-nav-h);
+}
+
+@media (min-width: 1024px) {
+  .portal-main {
+    padding-bottom: 0;
+    min-height: calc(100dvh - var(--portal-header-h));
+  }
+}
+
+.portal-header {
+  padding-top: var(--safe-top);
+}
+
+.portal-bottom-nav {
+  padding-bottom: var(--safe-bottom);
+}
+
+/* Touch-friendly inputs on mobile */
+@media (max-width: 640px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="datetime-local"],
+  select,
+  textarea {
+    font-size: 16px;
+  }
 }

@@ -7,7 +7,7 @@ export default async function BookFreightPage() {
   await requireUser(["CUSTOMER"], "/book/freight");
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+    <div className="px-4 py-6 sm:px-6">
       <Link href="/book" className="text-sm text-slate-400 hover:text-white">
         ← All booking types
       </Link>

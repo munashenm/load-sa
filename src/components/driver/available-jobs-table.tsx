@@ -50,7 +50,75 @@ export function AvailableJobsTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-slate-800">
+    <>
+      {/* Mobile card list — Uber/Lalamove style */}
+      <ul className="space-y-3 lg:hidden">
+        {jobs.map((j) => (
+          <li
+            key={j.id}
+            className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4"
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                    j.serviceType === "SHUTTLE"
+                      ? "bg-sky-500/20 text-sky-300"
+                      : "bg-slate-700 text-slate-300"
+                  }`}
+                >
+                  {serviceTypeLabels[(j.serviceType as ServiceType) ?? "FREIGHT"]}
+                </span>
+                <p className="mt-2 font-mono text-sm text-amber-400">{j.reference}</p>
+              </div>
+              <p className="text-lg font-bold text-white">{formatZAR(j.estimatedPrice)}</p>
+            </div>
+            <div className="mt-3 space-y-2 text-sm">
+              <p className="text-slate-300">
+                <span className="text-slate-500">From </span>
+                {j.pickupCity}, {j.pickupProvince}
+              </p>
+              <p className="text-slate-300">
+                <span className="text-slate-500">To </span>
+                {j.dropoffCity}, {j.dropoffProvince}
+              </p>
+              <p className="text-xs text-slate-500">
+                {j.distanceLabel} · {urgencyLabels[j.urgency as DeliveryUrgency]} ·{" "}
+                {vehicleTypeLabels[j.vehicleType as VehicleType]}
+              </p>
+              <p className="line-clamp-2 text-xs text-slate-400">{j.cargoDescription}</p>
+            </div>
+            {canAccept ? (
+              <div className="mt-4 flex gap-2">
+                <Button
+                  className="flex-1"
+                  disabled={loadingId === j.id}
+                  onClick={() => accept(j.id)}
+                >
+                  Accept job
+                </Button>
+                <Button
+                  variant="ghost"
+                  disabled={loadingId === j.id}
+                  onClick={() => reject(j.id)}
+                >
+                  Pass
+                </Button>
+              </div>
+            ) : (
+              <p className="mt-4 text-xs text-slate-500">Go online & verify to accept jobs</p>
+            )}
+          </li>
+        ))}
+        {jobs.length === 0 && (
+          <p className="py-12 text-center text-slate-500">
+            No jobs matching your vehicle right now.
+          </p>
+        )}
+      </ul>
+
+      {/* Desktop table */}
+      <div className="hidden overflow-x-auto rounded-2xl border border-slate-800 lg:block">
       <table className="w-full min-w-[960px] text-left text-sm">
         <thead className="bg-slate-900/80 text-slate-400">
           <tr>
@@ -133,10 +201,11 @@ export function AvailableJobsTable({
         </tbody>
       </table>
       {jobs.length === 0 && (
-        <p className="py-12 text-center text-slate-500">
+        <p className="hidden py-12 text-center text-slate-500 lg:block">
           No jobs matching your vehicle right now.
         </p>
       )}
-    </div>
+      </div>
+    </>
   );
 }

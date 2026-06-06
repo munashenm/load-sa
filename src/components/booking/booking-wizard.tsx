@@ -274,7 +274,22 @@ export function BookingWizard({
 
   return (
     <div className="space-y-6">
-      <nav className="flex flex-wrap gap-2">
+      <div className="lg:hidden">
+        <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
+          <span>
+            Step {Math.min(step + 1, 7)} of 7
+          </span>
+          <span className="font-medium text-amber-300/90">{STEPS[Math.min(step, 6)]}</span>
+        </div>
+        <div className="h-1.5 overflow-hidden rounded-full bg-slate-800">
+          <div
+            className="h-full rounded-full bg-amber-500 transition-all duration-300"
+            style={{ width: `${(Math.min(step + 1, 7) / 7) * 100}%` }}
+          />
+        </div>
+      </div>
+
+      <nav className="hidden flex-wrap gap-2 lg:flex">
         {STEPS.slice(0, 7).map((label, i) => (
           <button
             key={label}

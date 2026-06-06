@@ -144,7 +144,8 @@ export function AdminSidebar({
       )}
       <aside
         className={clsx(
-          "fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-slate-800 bg-slate-950 transition-transform lg:static lg:z-0 lg:max-h-[calc(100vh-3.5rem)] lg:translate-x-0",
+          "fixed bottom-0 left-0 top-14 z-50 flex w-64 flex-col border-r border-slate-800 bg-slate-950 transition-transform lg:static lg:top-auto lg:z-0 lg:max-h-[calc(100dvh-3.5rem)] lg:translate-x-0",
+          "pb-[var(--portal-bottom-nav-h)] lg:pb-0",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >

@@ -25,7 +25,7 @@ export default async function CustomerDashboardPage() {
   );
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+    <div className="px-4 py-6 sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white">My deliveries</h1>

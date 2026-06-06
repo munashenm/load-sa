@@ -96,7 +96,54 @@ export function BookingsTable({
         </span>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-slate-800">
+      <ul className="space-y-3 lg:hidden">
+        {filtered.map((b) => (
+          <li
+            key={b.id}
+            className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4"
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <p className="font-mono text-sm text-amber-400">{b.reference}</p>
+                <p className="mt-1 text-sm text-white">{b.customer.fullName}</p>
+              </div>
+              <p className="font-bold text-white">
+                {formatZAR(b.finalPrice ?? b.estimatedPrice)}
+              </p>
+            </div>
+            <p className="mt-2 text-sm text-slate-400">
+              {b.pickupCity} → {b.dropoffCity}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <StatusBadge
+                label={bookingStatusLabels[b.status as BookingStatus] ?? b.status}
+                tone="amber"
+              />
+              <StatusBadge
+                label={b.paymentStatus}
+                tone={b.paymentStatus === "PAID" ? "green" : "amber"}
+              />
+            </div>
+            <div className="mt-3 flex gap-2">
+              <Link href={`/admin/bookings/${b.id}`} className="flex-1">
+                <Button className="w-full !py-2 !text-xs">Manage</Button>
+              </Link>
+              <Button
+                variant="ghost"
+                className="!p-2"
+                onClick={() => setDetailId(b.id)}
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+            </div>
+          </li>
+        ))}
+        {filtered.length === 0 && (
+          <p className="py-8 text-center text-slate-500">No bookings match filters.</p>
+        )}
+      </ul>
+
+      <div className="hidden overflow-x-auto rounded-2xl border border-slate-800 lg:block">
         <table className="w-full min-w-[1200px] text-left text-sm">
           <thead className="bg-slate-900/80 text-slate-400">
             <tr>
@@ -208,7 +255,9 @@ export function BookingsTable({
           </tbody>
         </table>
         {filtered.length === 0 && (
-          <p className="py-12 text-center text-slate-500">No bookings match filters.</p>
+          <p className="hidden py-12 text-center text-slate-500 lg:block">
+            No bookings match filters.
+          </p>
         )}
       </div>
 
