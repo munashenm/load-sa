@@ -27,6 +27,7 @@ model User {
   ratingsGiven       BookingRating[]   @relation("RatingsGiven")
   safetyReports      SafetyReport[]
   bookingsAsCustomer Booking[]       @relation("CustomerBookings")
+  businessMemberships BusinessMember[]
   sessions           Session[]
   supportTickets     SupportTicket[]
   disputesRaised     Dispute[]        @relation("DisputeRaisedBy")
@@ -114,6 +115,8 @@ model Booking {
   reference  String         @unique
   customerId String
   customer   User           @relation("CustomerBookings", fields: [customerId], references: [id])
+  businessAccountId String?
+  businessAccount   BusinessAccount? @relation(fields: [businessAccountId], references: [id], onDelete: SetNull)
   driverId   String?
   driver     DriverProfile? @relation("DriverBookings", fields: [driverId], references: [id])
   status     String         @default("SEARCHING_DRIVER")
@@ -122,9 +125,13 @@ model Booking {
   pickupAddress   String
   pickupCity      String
   pickupProvince  String
+  pickupLat       Float?
+  pickupLng       Float?
   dropoffAddress  String
   dropoffCity     String
   dropoffProvince String
+  dropoffLat      Float?
+  dropoffLng      Float?
 
   vehicleType      String
   cargoDescription String?
@@ -262,12 +269,56 @@ model BusinessAccount {
   id                 String   @id @default(cuid())
   name               String
   registrationNumber String?
+  vatNumber          String?
   billingEmail       String
+  billingPhone       String?
+  billingAddress     String?
+  billingCity        String?
+  billingProvince    String?
   monthlyInvoicing   Boolean  @default(false)
+  status             String   @default("ACTIVE")
   ownerUserId        String
   owner              User     @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+
+  members   BusinessMember[]
+  bookings  Booking[]
+  invoices  BusinessInvoice[]
+}
+
+model BusinessMember {
+  id                String          @id @default(cuid())
+  businessAccountId String
+  businessAccount   BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  userId            String?
+  user              User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  invitedEmail      String?
+  role              String          @default("MEMBER")
+  status            String          @default("ACTIVE")
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([businessAccountId, userId])
+  @@unique([businessAccountId, invitedEmail])
+}
+
+model BusinessInvoice {
+  id                String          @id @default(cuid())
+  businessAccountId String
+  businessAccount   BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  reference         String          @unique
+  periodStart       DateTime
+  periodEnd         DateTime
+  totalAmount       Float
+  currency          String          @default("ZAR")
+  status            String          @default("DRAFT")
+  lineItemsJson     String?
+  issuedAt          DateTime?
+  dueAt             DateTime?
+  paidAt            DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
 }
 
 model WalletWithdrawal {

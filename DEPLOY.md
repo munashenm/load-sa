@@ -1,4 +1,4 @@
-# Deploy Load SA to Railway (GitHub → live URL)
+# Deploy Fluxmove to Railway (GitHub → live URL)
 
 ## Overview
 
@@ -18,7 +18,7 @@ cd "c:\Users\Nimrod\Documents\Gravity Projects\Zim SA Delivery APP\zim-sa-delive
 
 git init
 git add .
-git commit -m "Load SA delivery app"
+git commit -m "Fluxmove delivery app"
 ```
 
 Create a new repository on [github.com/new](https://github.com/new) (empty, no README).
@@ -58,7 +58,21 @@ On the **web service** (not the database), add:
 |------------------------|--------|
 | `SESSION_SECRET`       | Long random string (32+ chars). Generate: `openssl rand -hex 32` |
 | `NODE_ENV`             | `production` |
-| `NEXT_PUBLIC_APP_URL`  | Your public Railway URL, e.g. `https://load-sa-production.up.railway.app` (not `localhost`) |
+| `NEXT_PUBLIC_APP_URL`  | Your public URL, e.g. `https://fluxmove.co.za` (not `localhost`) |
+
+### Integrations (recommended for full features)
+
+| Variable | Purpose |
+|----------|---------|
+| `NEXT_PUBLIC_GOOGLE_MAPS_KEY` | Address autocomplete (browser) |
+| `GOOGLE_MAPS_API_KEY` | Route distance pricing (server) |
+| `PAYFAST_MERCHANT_ID`, `PAYFAST_MERCHANT_KEY`, `PAYFAST_PASSPHRASE` | Payments |
+| `PAYFAST_SANDBOX` | `true` for testing |
+| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Proof photos (web + mobile) |
+| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_SMS_FROM` | SMS notifications |
+| `TWILIO_WHATSAPP_FROM`, `SMS_ENABLED`, `WHATSAPP_ENABLED` | WhatsApp notifications |
+
+See `INTEGRATIONS.md` for setup details.
 
 Optional (first deploy only, then delete):
 
@@ -79,10 +93,32 @@ npm run db:seed
 Railway runs:
 
 - **Build:** `npm run build`
-- **Release:** `npx prisma migrate deploy` (creates tables)
+- **Release:** `npx prisma migrate deploy` (creates tables — includes business portal + Google Maps coords migrations)
 - **Start:** `npm run start`
 
 Open the generated **public URL** (Settings → Networking → Generate Domain).
+
+---
+
+## Step 5b — Driver mobile app (Expo)
+
+```powershell
+cd driver-mobile
+copy .env.example .env
+# Set EXPO_PUBLIC_API_URL=https://your-railway-url.up.railway.app
+npm install
+npx expo start
+```
+
+For production builds, install EAS CLI and run from `driver-mobile/`:
+
+```powershell
+npm install -g eas-cli
+eas login
+eas build --profile preview --platform android
+```
+
+See `INTEGRATIONS.md` for device testing notes.
 
 ---
 
@@ -98,7 +134,7 @@ Demo logins (password `demo12345`):
 
 - `customer@demo.co.za`
 - `driver@demo.co.za`
-- `admin@loadsa.co.za`
+- `admin@fluxmove.co.za`
 
 ---
 
@@ -106,7 +142,7 @@ Demo logins (password `demo12345`):
 
 ```powershell
 # Docker Postgres
-docker run --name loadsa-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=loadsa -p 5432:5432 -d postgres:16
+docker run --name fluxmove-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=fluxmove -p 5432:5432 -d postgres:16
 
 # Copy env
 copy .env.example .env

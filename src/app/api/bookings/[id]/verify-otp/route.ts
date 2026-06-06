@@ -29,7 +29,10 @@ export async function POST(
 
   if (!booking.deliveryOtp) {
     return NextResponse.json(
-      { error: "OTP not issued yet — customer must pay first" },
+      {
+        error:
+          "OTP not issued yet — customer must complete payment or use a business account with monthly invoicing",
+      },
       { status: 400 },
     );
   }
@@ -65,7 +68,7 @@ export async function POST(
     booking.status,
   );
 
-  if (booking.paymentStatus === "PAID") {
+  if (booking.paymentStatus === "PAID" || booking.paymentStatus === "INVOICED") {
     await applyOrderPricing(id, booking.finalPrice ?? booking.estimatedPrice);
   }
 

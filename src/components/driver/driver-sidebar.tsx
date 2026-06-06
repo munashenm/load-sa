@@ -53,7 +53,7 @@ export function DriverSidebar({
       >
         <div className="flex h-14 items-center justify-between border-b border-slate-800 px-4 lg:hidden">
           <span className="font-bold text-white">
-            Load <span className="text-amber-400">SA</span> Driver
+            Flux<span className="text-amber-400">Move</span> Driver
           </span>
           <button type="button" onClick={onClose} className="text-slate-400">
             <X className="h-5 w-5" />

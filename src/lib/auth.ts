@@ -6,8 +6,10 @@ import type { User } from "@prisma/client";
 import type { UserRole } from "@/lib/types";
 import { db } from "@/lib/db";
 
-export const SESSION_COOKIE = "loadsa_session";
+export const SESSION_COOKIE = "fluxmove_session";
 const SESSION_DAYS = 14;
+
+export const LEGACY_SESSION_COOKIES = ["loadsa_session", "zimload_session"] as const;
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12);
@@ -88,8 +90,6 @@ export async function setSessionCookie(token: string): Promise<void> {
   });
 }
 
-const LEGACY_SESSION_COOKIE = "zimload_session";
-
 export async function revokeSessionFromToken(token: string | undefined): Promise<void> {
   if (token) {
     await destroySession(token);
@@ -106,7 +106,7 @@ export function applySessionClear(response: {
     ) => void;
   };
 }): void {
-  for (const name of [SESSION_COOKIE, LEGACY_SESSION_COOKIE]) {
+  for (const name of [SESSION_COOKIE, ...LEGACY_SESSION_COOKIES]) {
     response.cookies.set(name, "", {
       maxAge: 0,
       path: "/",
@@ -117,11 +117,13 @@ export function applySessionClear(response: {
 
 export async function clearSessionCookie(): Promise<void> {
   const cookieStore = await cookies();
-  const token = cookieStore.get(SESSION_COOKIE)?.value;
-  const legacyToken = cookieStore.get(LEGACY_SESSION_COOKIE)?.value;
-  await revokeSessionFromToken(token);
-  await revokeSessionFromToken(legacyToken);
-  for (const name of [SESSION_COOKIE, LEGACY_SESSION_COOKIE]) {
+  const tokens = [SESSION_COOKIE, ...LEGACY_SESSION_COOKIES].map(
+    (name) => cookieStore.get(name)?.value,
+  );
+  for (const token of tokens) {
+    await revokeSessionFromToken(token);
+  }
+  for (const name of [SESSION_COOKIE, ...LEGACY_SESSION_COOKIES]) {
     cookieStore.set(name, "", {
       maxAge: 0,
       path: "/",

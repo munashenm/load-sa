@@ -17,13 +17,43 @@ export const verificationLabels: Record<VerificationStatus, string> = {
   REJECTED: "Not approved",
 };
 
+export const trackingTimelineSteps: {
+  status: BookingStatus | "CREATED" | "COMPLETED";
+  label: string;
+}[] = [
+  { status: "CREATED", label: "Booking created" },
+  { status: "SEARCHING_DRIVER", label: "Finding driver" },
+  { status: "DRIVER_ASSIGNED", label: "Driver assigned" },
+  { status: "EN_ROUTE_PICKUP", label: "Driver en route" },
+  { status: "PICKED_UP", label: "Item collected" },
+  { status: "IN_TRANSIT", label: "In transit" },
+  { status: "NEAR_DESTINATION", label: "Arriving soon" },
+  { status: "DELIVERED", label: "Delivered" },
+  { status: "COMPLETED", label: "Completed" },
+];
+
+const STATUS_ORDER: (BookingStatus | "CREATED" | "COMPLETED")[] =
+  trackingTimelineSteps.map((s) => s.status);
+
+export function trackingStepIndex(
+  status: BookingStatus,
+  paymentStatus?: string,
+): number {
+  if (status === "CANCELLED") return -1;
+  if (status === "DELIVERED" && paymentStatus === "PAID") {
+    return STATUS_ORDER.indexOf("COMPLETED");
+  }
+  const idx = STATUS_ORDER.indexOf(status);
+  return idx >= 0 ? idx : 0;
+}
+
 export const bookingStatusLabels: Record<BookingStatus, string> = {
   SEARCHING_DRIVER: "Finding driver",
-  DRIVER_ASSIGNED: "Accepted",
-  EN_ROUTE_PICKUP: "On the way to pickup",
-  PICKED_UP: "Picked up",
+  DRIVER_ASSIGNED: "Driver assigned",
+  EN_ROUTE_PICKUP: "Driver en route",
+  PICKED_UP: "Item collected",
   IN_TRANSIT: "In transit",
-  NEAR_DESTINATION: "Near destination",
+  NEAR_DESTINATION: "Arriving soon",
   DELIVERED: "Delivered",
   CANCELLED: "Cancelled",
 };

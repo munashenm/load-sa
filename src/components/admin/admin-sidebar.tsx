@@ -42,7 +42,7 @@ export function AdminSidebar({
   const nav = (
     <nav className="flex flex-col gap-1 p-4">
       <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-amber-500/80">
-        Load SA Admin
+        FluxMove Admin
       </p>
       {links.map(({ href, label, icon: Icon, exact }) => {
         const active = exact ? pathname === href : pathname.startsWith(href);
@@ -84,7 +84,7 @@ export function AdminSidebar({
       >
         <div className="flex h-14 items-center justify-between border-b border-slate-800 px-4 lg:hidden">
           <span className="font-bold text-white">
-            Load <span className="text-amber-400">SA</span>
+            Flux<span className="text-amber-400">Move</span>
           </span>
           <button type="button" onClick={onClose} className="text-slate-400 hover:text-white">
             <X className="h-5 w-5" />

@@ -1,7 +1,7 @@
 import type { Booking } from "@prisma/client";
 
 export function isChatUnlocked(paymentStatus: string): boolean {
-  return paymentStatus === "PAID";
+  return paymentStatus === "PAID" || paymentStatus === "INVOICED";
 }
 
 export function canAccessChat(

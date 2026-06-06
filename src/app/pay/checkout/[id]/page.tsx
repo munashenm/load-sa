@@ -40,7 +40,7 @@ export default async function PayCheckoutPage({
     amount: booking.estimatedPrice,
     customerEmail: booking.customer.email,
     customerName: booking.customer.fullName,
-    itemName: `Load SA delivery ${booking.reference}`,
+    itemName: `FluxMove delivery ${booking.reference}`,
   });
 
   if (!payment) {

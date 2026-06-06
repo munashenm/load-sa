@@ -1,6 +1,8 @@
-# Load SA
+# Fluxmove
 
 Nationwide delivery marketplace for South Africa — like Bolt, but for freight. Customers book moves; verified drivers (bakkies, panel vans, light to heavy trucks, empty returns) accept jobs across all 9 provinces.
+
+Live site: [fluxmove.co.za](https://fluxmove.co.za)
 
 ## Features
 
@@ -19,7 +21,7 @@ Requires **PostgreSQL** (see `.env.example`). Example with Docker:
 
 ```bash
 cd zim-sa-delivery
-docker run --name loadsa-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=loadsa -p 5432:5432 -d postgres:16
+docker run --name fluxmove-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=fluxmove -p 5432:5432 -d postgres:16
 copy .env.example .env
 npm install
 npm run db:migrate
@@ -33,7 +35,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 | Role     | Email                 |
 |----------|------------------------|
-| Admin    | admin@loadsa.co.za     |
+| Admin    | admin@fluxmove.co.za     |
 | Customer | customer@demo.co.za  |
 | Driver   | driver@demo.co.za      |
 
@@ -48,7 +50,8 @@ Open [http://localhost:3000](http://localhost:3000).
 - Set `SESSION_SECRET` to a long random string
 - Use PostgreSQL: update `DATABASE_URL` in `.env` and `provider` in `prisma/schema.prisma`
 - Add document upload (S3/Azure Blob) for licence/ID photos
-- Integrate maps (Google/OSM) for real distance pricing and live tracking
+- Integrate maps (Google/OSM) for real distance pricing and live tracking — see [INTEGRATIONS.md](./INTEGRATIONS.md)
+- **Driver mobile app** — Expo app in `driver-mobile/` for GPS, navigation, proof & OTP on the road
 - POPIA: privacy policy, data retention, driver consent flows
 
 ## Project structure

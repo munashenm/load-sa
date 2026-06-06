@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { BookingForm } from "@/components/booking-form";
+import { BookingWizard } from "@/components/booking/booking-wizard";
 import { requireUser } from "@/lib/auth";
-import { DELIVERY_DESCRIPTION } from "@/lib/sa-data";
+import { BRAND_DESCRIPTION } from "@/lib/brand";
 
 export default async function BookFreightPage() {
   await requireUser(["CUSTOMER"], "/book/freight");
@@ -11,10 +11,10 @@ export default async function BookFreightPage() {
       <Link href="/book" className="text-sm text-slate-400 hover:text-white">
         ← All booking types
       </Link>
-      <h1 className="mt-4 text-2xl font-bold text-white">Freight & delivery</h1>
-      <p className="mt-2 text-slate-400">{DELIVERY_DESCRIPTION}</p>
+      <h1 className="mt-4 text-2xl font-bold text-white">Book a delivery</h1>
+      <p className="mt-2 text-slate-400">{BRAND_DESCRIPTION}</p>
       <div className="mt-8">
-        <BookingForm />
+        <BookingWizard />
       </div>
     </div>
   );

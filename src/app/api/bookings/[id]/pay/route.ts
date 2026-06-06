@@ -57,7 +57,7 @@ export async function POST(
     amount,
     customerEmail: booking.customer.email,
     customerName: booking.customer.fullName,
-    itemName: `Load SA ${booking.reference}`,
+    itemName: `FluxMove ${booking.reference}`,
   });
 
   if (!payment) {

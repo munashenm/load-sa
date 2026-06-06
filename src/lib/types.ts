@@ -49,7 +49,9 @@ export type BookingStatus =
   | "DELIVERED"
   | "CANCELLED";
 
-export type PaymentStatus = "UNPAID" | "PENDING" | "PAID" | "REFUNDED" | "FAILED";
+export type PaymentStatus = "UNPAID" | "PENDING" | "PAID" | "REFUNDED" | "FAILED" | "INVOICED";
+export type BusinessMemberRole = "OWNER" | "ADMIN" | "MEMBER";
+export type BusinessInvoiceStatus = "DRAFT" | "ISSUED" | "PAID" | "OVERDUE";
 export type PayoutStatus = "PENDING" | "PROCESSING" | "PAID" | "FAILED";
 export type DisputeStatus = "OPEN" | "IN_REVIEW" | "RESOLVED" | "REJECTED";
 export type TicketStatus = "OPEN" | "IN_PROGRESS" | "CLOSED";

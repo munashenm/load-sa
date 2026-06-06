@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Package,
   Clock,
@@ -5,6 +6,7 @@ import {
   CheckCircle2,
   Users,
   Banknote,
+  AlertTriangle,
 } from "lucide-react";
 import { StatCard } from "@/components/admin/stat-card";
 import { getAdminDashboardStats } from "@/lib/admin-stats";
@@ -17,7 +19,10 @@ export default async function AdminOverviewPage() {
     <div>
       <h1 className="text-2xl font-bold text-white">Dashboard overview</h1>
       <p className="mt-2 text-slate-400">
-        Load SA marketplace — bookings, drivers, and revenue at a glance.
+        FluxMove marketplace — bookings, drivers, and revenue at a glance.{" "}
+        <Link href="/admin/analytics" className="text-amber-400 hover:underline">
+          View full analytics →
+        </Link>
       </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -49,7 +54,14 @@ export default async function AdminOverviewPage() {
           accent="emerald"
         />
         <StatCard
-          label="Total drivers"
+          label="Delivered today"
+          value={stats.deliveriesCompletedToday}
+          href="/admin/analytics"
+          icon={CheckCircle2}
+          accent="blue"
+        />
+        <StatCard
+          label="Active drivers"
           value={stats.totalDrivers}
           href="/admin/drivers"
           icon={Truck}
@@ -61,9 +73,23 @@ export default async function AdminOverviewPage() {
           icon={Users}
         />
         <StatCard
+          label="Pending verifications"
+          value={stats.pendingVerifications}
+          href="/admin/drivers"
+          icon={Clock}
+          accent="amber"
+        />
+        <StatCard
+          label="Open complaints"
+          value={stats.openComplaints}
+          href="/admin/complaints"
+          icon={AlertTriangle}
+          accent="amber"
+        />
+        <StatCard
           label="Revenue"
           value={formatZAR(stats.revenue)}
-          href="/admin/bookings"
+          href="/admin/analytics"
           icon={Banknote}
           accent="emerald"
         />

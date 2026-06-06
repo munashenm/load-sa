@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { sendStatusMessage, sendUserMessage } from "@/lib/messaging";
 
 export type NotificationType =
   | "DRIVER_ACCEPTED"
@@ -54,6 +55,45 @@ export async function notifyCustomer(
       message: copy.message(reference),
     },
   });
+
+  const customer = await db.user.findUnique({
+    where: { id: customerId },
+    select: { phone: true },
+  });
+
+  if (customer?.phone) {
+    await sendStatusMessage(
+      customer.phone,
+      copy.title,
+      copy.message(reference),
+      bookingId,
+    );
+  }
+}
+
+export async function notifyUser(
+  userId: string,
+  bookingId: string,
+  reference: string,
+  type: NotificationType,
+): Promise<void> {
+  await notifyCustomer(userId, bookingId, reference, type);
+}
+
+export async function notifyUserMessage(
+  userId: string,
+  title: string,
+  message: string,
+): Promise<void> {
+  await db.notification.create({
+    data: {
+      userId,
+      type: "SYSTEM",
+      title,
+      message,
+    },
+  });
+  await sendUserMessage(userId, `${title} — ${message}`);
 }
 
 export async function notifyCustomerForStatus(

@@ -15,7 +15,7 @@ export function configureCloudinary() {
 
 export async function uploadImageBuffer(
   buffer: Buffer,
-  folder = "loadsa/proof",
+  folder = "fluxmove/proof",
 ): Promise<string> {
   if (!configureCloudinary()) {
     throw new Error("Cloudinary not configured");

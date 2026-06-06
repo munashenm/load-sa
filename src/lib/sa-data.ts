@@ -8,7 +8,7 @@ import type {
 } from "@/lib/types";
 
 export const DELIVERY_DESCRIPTION =
-  "Load SA connects customers with verified drivers who can deliver anything from tender documents and small parcels to large furniture, business equipment, vehicles, and heavy assets.";
+  "FluxMove connects customers with verified drivers who can deliver anything from tender documents and small parcels to large furniture, business equipment, vehicles, and heavy assets.";
 
 export const SA_PROVINCES = [
   "Eastern Cape",
@@ -212,4 +212,25 @@ export function resolveCityCoords(city: string, province: string) {
     CITY_COORDINATES[city] ??
     PROVINCE_CENTER[province] ?? { lat: -29.0, lng: 24.0 }
   );
+}
+
+export function resolveBookingCoords(booking: {
+  pickupCity: string;
+  pickupProvince: string;
+  pickupLat?: number | null;
+  pickupLng?: number | null;
+  dropoffCity: string;
+  dropoffProvince: string;
+  dropoffLat?: number | null;
+  dropoffLng?: number | null;
+}) {
+  const pickup =
+    booking.pickupLat != null && booking.pickupLng != null
+      ? { lat: booking.pickupLat, lng: booking.pickupLng }
+      : resolveCityCoords(booking.pickupCity, booking.pickupProvince);
+  const dropoff =
+    booking.dropoffLat != null && booking.dropoffLng != null
+      ? { lat: booking.dropoffLat, lng: booking.dropoffLng }
+      : resolveCityCoords(booking.dropoffCity, booking.dropoffProvince);
+  return { pickup, dropoff };
 }

@@ -22,10 +22,10 @@ async function main() {
   });
 
   await db.user.upsert({
-    where: { email: "admin@loadsa.co.za" },
+    where: { email: "admin@fluxmove.co.za" },
     update: {},
     create: {
-      email: "admin@loadsa.co.za",
+      email: "admin@fluxmove.co.za",
       passwordHash,
       fullName: "Platform Admin",
       phone: "+27820000001",
@@ -79,7 +79,7 @@ async function main() {
   });
 
   console.log("Seed complete:");
-  console.log("  admin@loadsa.co.za / demo12345");
+  console.log("  admin@fluxmove.co.za / demo12345");
   console.log("  customer@demo.co.za / demo12345");
   console.log("  driver@demo.co.za / demo12345 (under review)");
 }

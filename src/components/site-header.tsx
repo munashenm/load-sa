@@ -2,11 +2,18 @@ import Link from "next/link";
 import { Truck } from "lucide-react";
 import { logoutAction } from "@/app/actions/auth";
 import { getSessionUser } from "@/lib/auth";
+import { BRAND_TAGLINE } from "@/lib/brand";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 
+import { getPrimaryBusinessForUser } from "@/lib/business-portal";
+
 export async function SiteHeader() {
   const user = await getSessionUser();
+  const business =
+    user?.role === "CUSTOMER"
+      ? await getPrimaryBusinessForUser(user.id)
+      : null;
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md">
@@ -15,8 +22,13 @@ export async function SiteHeader() {
           <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-500 text-slate-950">
             <Truck className="h-5 w-5" />
           </span>
-          <span>
-            Load <span className="text-amber-400">SA</span>
+          <span className="leading-tight">
+            <span>
+              Flux<span className="text-amber-400">Move</span>
+            </span>
+            <span className="hidden text-[10px] font-normal text-slate-500 sm:block">
+              {BRAND_TAGLINE}
+            </span>
           </span>
         </Link>
 
@@ -41,6 +53,21 @@ export async function SiteHeader() {
                 </Link>
               ) : user.role === "CUSTOMER" ? (
                 <>
+                  {business ? (
+                    <Link
+                      href={`/business/${business.business.id}`}
+                      className="hidden text-sm text-sky-300 hover:text-sky-200 sm:block"
+                    >
+                      Business
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/business/setup"
+                      className="hidden text-sm text-slate-300 hover:text-white sm:block"
+                    >
+                      Business
+                    </Link>
+                  )}
                   <Link
                     href="/customer"
                     className="hidden text-sm text-slate-300 hover:text-white sm:block"

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,9 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Load SA — Nationwide delivery marketplace",
+  title: `${BRAND_NAME} — ${BRAND_TAGLINE}`,
   description:
-    "Book bakkies, trucks and empty-return loads across South Africa. Verified drivers, customers and freight nationwide.",
+    "Book trusted drivers for deliveries, furniture moving, business logistics, and heavy loads across South Africa.",
 };
 
 export default function RootLayout({

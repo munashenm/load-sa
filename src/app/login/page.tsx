@@ -16,7 +16,7 @@ export default async function LoginPage({
       <p className="mt-2 text-slate-400">
         {isBook
           ? "Sign in with a customer account to book a delivery."
-          : "Welcome back to Load SA."}{" "}
+          : "Welcome back to FluxMove."}{" "}
         <Link href="/register?role=customer" className="text-amber-400 hover:underline">
           Create account
         </Link>

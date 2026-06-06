@@ -20,9 +20,13 @@ export const shuttleBookingSchema = z.object({
   pickupAddress: z.string().min(5),
   pickupCity: z.string().min(2),
   pickupProvince: provinceEnum,
+  pickupLat: z.coerce.number().optional(),
+  pickupLng: z.coerce.number().optional(),
   dropoffAddress: z.string().min(5),
   dropoffCity: z.string().min(2),
   dropoffProvince: provinceEnum,
+  dropoffLat: z.coerce.number().optional(),
+  dropoffLng: z.coerce.number().optional(),
   shuttleTripType: z.enum([
     "AIRPORT_PICKUP",
     "AIRPORT_DROPOFF",
@@ -51,9 +55,13 @@ export const bookingSchema = z.object({
   pickupAddress: z.string().min(5),
   pickupCity: z.string().min(2),
   pickupProvince: provinceEnum,
+  pickupLat: z.coerce.number().optional(),
+  pickupLng: z.coerce.number().optional(),
   dropoffAddress: z.string().min(5),
   dropoffCity: z.string().min(2),
   dropoffProvince: provinceEnum,
+  dropoffLat: z.coerce.number().optional(),
+  dropoffLng: z.coerce.number().optional(),
   vehicleType: z.enum([
     "MOTORCYCLE",
     "CAR",
@@ -98,6 +106,8 @@ export const bookingSchema = z.object({
         city: z.string().min(2),
         province: provinceEnum,
         label: z.string().optional(),
+        lat: z.coerce.number().optional(),
+        lng: z.coerce.number().optional(),
       }),
     )
     .max(5)
@@ -174,4 +184,29 @@ export const vehicleSchema = z.object({
 
 export const driverVehicleExtendedSchema = vehicleSchema.extend({
   insuranceStatus: z.enum(["INSURED", "PENDING", "NOT_INSURED"]).optional(),
+});
+
+export const businessSetupSchema = z.object({
+  name: z.string().min(2, "Company name required"),
+  registrationNumber: z.string().max(50).optional(),
+  vatNumber: z.string().max(20).optional(),
+  billingEmail: z.string().email(),
+  billingPhone: z.string().min(9).optional(),
+  billingAddress: z.string().min(5).optional(),
+  billingCity: z.string().min(2).optional(),
+  billingProvince: provinceEnum.optional(),
+  monthlyInvoicing: z.coerce.boolean().default(false),
+});
+
+export const businessUpdateSchema = businessSetupSchema.partial();
+
+export const businessInviteSchema = z.object({
+  email: z.string().email(),
+  role: z.enum(["ADMIN", "MEMBER"]).default("MEMBER"),
+});
+
+export const bulkBookingRowSchema = bookingSchema;
+
+export const bulkBookingsSchema = z.object({
+  bookings: z.array(bookingSchema).min(1).max(20),
 });

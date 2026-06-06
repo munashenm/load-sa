@@ -24,13 +24,28 @@ export async function GET(request: Request) {
   }
 
   if (user.role === "DRIVER" && user.driverProfile) {
-    const openJobs = await db.booking.findMany({
-      where: { status: "SEARCHING_DRIVER" },
-      orderBy: { createdAt: "desc" },
+    const profile = await db.driverProfile.findUnique({
+      where: { id: user.driverProfile.id },
+      include: { vehicles: true },
     });
+    if (!profile) {
+      return NextResponse.json({ openJobs: [], myJobs: [] });
+    }
+
+    const { getAvailableJobsForDriver, primaryVehicleType } = await import(
+      "@/lib/driver-portal"
+    );
+    const openJobs = await getAvailableJobsForDriver(
+      profile.id,
+      primaryVehicleType(profile.vehicles),
+      profile,
+    );
     const myJobs = await db.booking.findMany({
-      where: { driverId: user.driverProfile.id },
-      orderBy: { createdAt: "desc" },
+      where: {
+        driverId: user.driverProfile.id,
+        status: { notIn: ["DELIVERED", "CANCELLED"] },
+      },
+      orderBy: { updatedAt: "desc" },
     });
     return NextResponse.json({ openJobs, myJobs });
   }
@@ -77,9 +92,13 @@ export async function POST(request: Request) {
       pickupAddress: data.pickupAddress,
       pickupCity: data.pickupCity,
       pickupProvince: data.pickupProvince,
+      pickupLat: data.pickupLat,
+      pickupLng: data.pickupLng,
       dropoffAddress: data.dropoffAddress,
       dropoffCity: data.dropoffCity,
       dropoffProvince: data.dropoffProvince,
+      dropoffLat: data.dropoffLat,
+      dropoffLng: data.dropoffLng,
       vehicleType: data.vehicleType,
       cargoDescription: data.cargoDescription,
       cargoSize: data.cargoSize,
@@ -98,6 +117,9 @@ export async function POST(request: Request) {
       scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : undefined,
     },
   });
+
+  const { sendBookingConfirmation } = await import("@/lib/messaging");
+  await sendBookingConfirmation(user.id, booking.reference, booking.id);
 
   return NextResponse.json({ booking, breakdown });
 }

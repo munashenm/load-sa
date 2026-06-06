@@ -32,6 +32,7 @@ export async function POST(request: Request) {
 
   if (paymentStatus === "COMPLETE") {
     const amount = parseFloat(data.amount_gross ?? String(booking.estimatedPrice));
+    const otp = generateDeliveryOtp();
 
     await db.payment.upsert({
       where: { bookingId },
@@ -55,11 +56,19 @@ export async function POST(request: Request) {
       where: { id: bookingId },
       data: {
         paymentStatus: "PAID",
-        deliveryOtp: generateDeliveryOtp(),
+        deliveryOtp: otp,
       },
     });
 
     await applyOrderPricing(bookingId, amount);
+
+    const { sendDeliveryOtpMessage } = await import("@/lib/messaging");
+    await sendDeliveryOtpMessage(
+      booking.customerId,
+      booking.reference,
+      otp,
+      bookingId,
+    );
   } else if (paymentStatus === "FAILED" || paymentStatus === "CANCELLED") {
     await db.payment.updateMany({
       where: { bookingId },

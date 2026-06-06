@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AddressAutocomplete } from "@/components/maps/address-autocomplete";
 import { PriceBreakdownCard } from "@/components/pricing/price-breakdown";
 import { Button } from "@/components/ui/button";
 import { FieldError, Input, Label, Select, Textarea } from "@/components/ui/input";
@@ -29,6 +30,12 @@ export function ShuttleBookingForm() {
   const [isNight, setIsNight] = useState(false);
   const [pickupCity, setPickupCity] = useState("Sandton");
   const [dropoffCity, setDropoffCity] = useState("Kempton Park");
+  const [pickupAddress, setPickupAddress] = useState("");
+  const [dropoffAddress, setDropoffAddress] = useState("");
+  const [pickupLat, setPickupLat] = useState<number | undefined>();
+  const [pickupLng, setPickupLng] = useState<number | undefined>();
+  const [dropoffLat, setDropoffLat] = useState<number | undefined>();
+  const [dropoffLng, setDropoffLng] = useState<number | undefined>();
   const [estimate, setEstimate] = useState(0);
   const [breakdown, setBreakdown] = useState<PriceBreakdown | null>(null);
   const [loading, setLoading] = useState(false);
@@ -102,10 +109,23 @@ export function ShuttleBookingForm() {
     setError(null);
     const fd = new FormData(e.currentTarget);
     const body: Record<string, unknown> = Object.fromEntries(fd.entries());
+    body.pickupAddress = pickupAddress;
+    body.pickupCity = pickupCity;
+    body.pickupProvince = pickupProvince;
+    body.pickupLat = pickupLat;
+    body.pickupLng = pickupLng;
     if (isHourly) {
-      body.dropoffAddress = body.pickupAddress;
+      body.dropoffAddress = pickupAddress;
       body.dropoffCity = pickupCity;
       body.dropoffProvince = pickupProvince;
+      body.dropoffLat = pickupLat;
+      body.dropoffLng = pickupLng;
+    } else {
+      body.dropoffAddress = dropoffAddress;
+      body.dropoffCity = dropoffCity;
+      body.dropoffProvince = dropoffProvince;
+      body.dropoffLat = dropoffLat;
+      body.dropoffLng = dropoffLng;
     }
     const res = await fetch("/api/bookings/shuttle", {
       method: "POST",
@@ -185,7 +205,20 @@ export function ShuttleBookingForm() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <Label htmlFor="pickupAddress">Address</Label>
-            <Input id="pickupAddress" name="pickupAddress" required />
+            <AddressAutocomplete
+              id="pickupAddress"
+              value={pickupAddress}
+              onChange={setPickupAddress}
+              onPlaceSelected={(place) => {
+                setPickupAddress(place.address);
+                setPickupCity(place.city);
+                setPickupProvince(place.province);
+                setPickupLat(place.lat);
+                setPickupLng(place.lng);
+              }}
+              placeholder="Pickup street address"
+              required
+            />
           </div>
           <div>
             <Label htmlFor="pickupCity">City</Label>
@@ -220,7 +253,20 @@ export function ShuttleBookingForm() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <Label htmlFor="dropoffAddress">Address</Label>
-              <Input id="dropoffAddress" name="dropoffAddress" required />
+              <AddressAutocomplete
+                id="dropoffAddress"
+                value={dropoffAddress}
+                onChange={setDropoffAddress}
+                onPlaceSelected={(place) => {
+                  setDropoffAddress(place.address);
+                  setDropoffCity(place.city);
+                  setDropoffProvince(place.province);
+                  setDropoffLat(place.lat);
+                  setDropoffLng(place.lng);
+                }}
+                placeholder="Drop-off street address"
+                required
+              />
             </div>
             <div>
               <Label htmlFor="dropoffCity">City</Label>
@@ -346,7 +392,7 @@ export function ShuttleBookingForm() {
           </label>
         </div>
         <p className="mt-3 text-xs text-slate-500">
-          Passenger trips require a verified driver with PDP. Load SA connects you with
+          Passenger trips require a verified driver with PDP. Fluxmove connects you with
           independent operators — not a taxi meter service.
         </p>
       </section>

@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { DeliveryTrackingTimeline } from "@/components/tracking/delivery-tracking-timeline";
 import { TrackMapDynamic } from "@/components/track-map-dynamic";
 import { bookingStatusLabels } from "@/lib/labels";
-import { resolveCityCoords } from "@/lib/sa-data";
+import { resolveBookingCoords } from "@/lib/sa-data";
 import type { BookingStatus } from "@/lib/types";
 
 type Booking = {
@@ -16,6 +17,10 @@ type Booking = {
   dropoffProvince: string;
   driverLat: number | null;
   driverLng: number | null;
+  pickupLat?: number | null;
+  pickupLng?: number | null;
+  dropoffLat?: number | null;
+  dropoffLng?: number | null;
   lastLocationAt: string | null;
   paymentStatus: string;
   driver?: { user: { fullName: string; phone: string } } | null;
@@ -39,14 +44,9 @@ export function LiveTrack({ bookingId }: { bookingId: string }) {
 
   const mapPoints = useMemo(() => {
     if (!booking) return null;
-    const pickup = {
-      ...resolveCityCoords(booking.pickupCity, booking.pickupProvince),
-      label: booking.pickupCity,
-    };
-    const dropoff = {
-      ...resolveCityCoords(booking.dropoffCity, booking.dropoffProvince),
-      label: booking.dropoffCity,
-    };
+    const { pickup, dropoff } = resolveBookingCoords(booking);
+    const pickupPoint = { ...pickup, label: booking.pickupCity };
+    const dropoffPoint = { ...dropoff, label: booking.dropoffCity };
     const driver =
       booking.driverLat != null && booking.driverLng != null
         ? {
@@ -55,7 +55,7 @@ export function LiveTrack({ bookingId }: { bookingId: string }) {
             label: booking.driver?.user.fullName ?? "Driver",
           }
         : null;
-    return { pickup, dropoff, driver };
+    return { pickup: pickupPoint, dropoff: dropoffPoint, driver };
   }, [booking]);
 
   if (!booking) {
@@ -63,7 +63,7 @@ export function LiveTrack({ bookingId }: { bookingId: string }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <p className="font-mono text-amber-400">{booking.reference}</p>
       <p className="text-white">
         {booking.pickupCity} → {booking.dropoffCity}
@@ -77,6 +77,14 @@ export function LiveTrack({ bookingId }: { bookingId: string }) {
           <span className="ml-2 text-emerald-400">· Paid</span>
         )}
       </p>
+
+      <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-4">
+        <h3 className="mb-4 text-sm font-semibold text-white">Delivery progress</h3>
+        <DeliveryTrackingTimeline
+          status={booking.status as BookingStatus}
+          paymentStatus={booking.paymentStatus}
+        />
+      </div>
 
       {booking.driver && (
         <p className="text-sm text-slate-300">

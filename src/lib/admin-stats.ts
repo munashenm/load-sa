@@ -1,44 +1,37 @@
 import { db } from "@/lib/db";
+import { getAdminAnalyticsSummary } from "@/lib/admin-analytics";
 
 export async function getAdminDashboardStats() {
-  const [
-    totalBookings,
-    pendingBookings,
-    activeDeliveries,
-    completedDeliveries,
-    totalDrivers,
-    totalCustomers,
-    revenueAgg,
-  ] = await Promise.all([
-    db.booking.count(),
+  const summary = await getAdminAnalyticsSummary();
+
+  const [pendingBookings, activeDeliveries, completedDeliveries] = await Promise.all([
     db.booking.count({ where: { status: "SEARCHING_DRIVER" } }),
     db.booking.count({
       where: {
-        status: { in: ["DRIVER_ASSIGNED", "PICKED_UP", "IN_TRANSIT"] },
+        status: {
+          in: [
+            "DRIVER_ASSIGNED",
+            "EN_ROUTE_PICKUP",
+            "PICKED_UP",
+            "IN_TRANSIT",
+            "NEAR_DESTINATION",
+          ],
+        },
       },
     }),
     db.booking.count({ where: { status: "DELIVERED" } }),
-    db.driverProfile.count(),
-    db.user.count({ where: { role: "CUSTOMER" } }),
-    db.booking.aggregate({
-      where: { paymentStatus: "PAID" },
-      _sum: { finalPrice: true, platformFee: true, estimatedPrice: true },
-    }),
   ]);
 
-  const revenue =
-    revenueAgg._sum.finalPrice ??
-    revenueAgg._sum.platformFee ??
-    revenueAgg._sum.estimatedPrice ??
-    0;
-
   return {
-    totalBookings,
+    totalBookings: summary.totalOrders,
     pendingBookings,
     activeDeliveries,
     completedDeliveries,
-    totalDrivers,
-    totalCustomers,
-    revenue,
+    totalDrivers: summary.activeDrivers,
+    totalCustomers: summary.activeCustomers,
+    revenue: summary.revenue,
+    pendingVerifications: summary.pendingVerifications,
+    openComplaints: summary.openComplaints,
+    deliveriesCompletedToday: summary.deliveriesCompletedToday,
   };
 }

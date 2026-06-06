@@ -6,7 +6,9 @@ export function ThemeToggle() {
   const [light, setLight] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem("loadsa-theme");
+    const stored =
+      localStorage.getItem("fluxmove-theme") ??
+      localStorage.getItem("loadsa-theme");
     if (stored === "light") {
       setLight(true);
       document.documentElement.classList.add("theme-light");
@@ -18,10 +20,10 @@ export function ThemeToggle() {
     setLight(next);
     if (next) {
       document.documentElement.classList.add("theme-light");
-      localStorage.setItem("loadsa-theme", "light");
+      localStorage.setItem("fluxmove-theme", "light");
     } else {
       document.documentElement.classList.remove("theme-light");
-      localStorage.setItem("loadsa-theme", "dark");
+      localStorage.setItem("fluxmove-theme", "dark");
     }
   }
 

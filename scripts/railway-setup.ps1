@@ -11,7 +11,7 @@ $ErrorActionPreference = "Stop"
 $Railway = "npx"
 $RailwayArgs = @("@railway/cli")
 
-Write-Host "`n=== Load SA — Railway database setup ===" -ForegroundColor Cyan
+Write-Host "`n=== Fluxmove — Railway database setup ===" -ForegroundColor Cyan
 Write-Host "Uses: npx @railway/cli (no global install needed)`n"
 
 Write-Host "1/2 Running database migrations..." -ForegroundColor Green
@@ -31,4 +31,4 @@ if ($LASTEXITCODE -ne 0) { exit 1 }
 Write-Host "`nDone! Demo logins (password: demo12345):" -ForegroundColor Cyan
 Write-Host "  customer@demo.co.za"
 Write-Host "  driver@demo.co.za"
-Write-Host "  admin@loadsa.co.za`n"
+Write-Host "  admin@fluxmove.co.za`n"

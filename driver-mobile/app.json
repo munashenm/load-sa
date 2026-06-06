@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "Load SA Driver",
-    "slug": "loadsa-driver",
+    "name": "Fluxmove Driver",
+    "slug": "fluxmove-driver",
     "version": "1.0.0",
     "orientation": "portrait",
-    "scheme": "loadsa-driver",
+    "scheme": "fluxmove-driver",
     "userInterfaceStyle": "dark",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "za.loadsa.driver",
+      "bundleIdentifier": "za.fluxmove.driver",
       "infoPlist": {
         "UIBackgroundModes": ["location"],
         "NSLocationWhenInUseUsageDescription": "Share your location with customers during active deliveries.",
@@ -16,7 +16,7 @@
       }
     },
     "android": {
-      "package": "za.loadsa.driver",
+      "package": "za.fluxmove.driver",
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
@@ -30,8 +30,14 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Load SA needs background location during active deliveries.",
+          "locationAlwaysAndWhenInUsePermission": "Fluxmove needs background location during active deliveries.",
           "isAndroidBackgroundLocationEnabled": true
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Fluxmove needs camera access to capture pickup and delivery proof photos."
         }
       ]
     ]

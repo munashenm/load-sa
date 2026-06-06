@@ -1,5 +1,5 @@
 {
-  "name": "load-sa-delivery",
+  "name": "fluxmove-delivery",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -17,6 +17,7 @@
     "seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@googlemaps/js-api-loader": "^1.16.8",
     "@prisma/client": "^5.22.0",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",

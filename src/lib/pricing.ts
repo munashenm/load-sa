@@ -47,11 +47,30 @@ export async function estimateBookingPriceFromDb(
   input: SmartPricingInput,
 ): Promise<{ total: number; breakdown: PriceBreakdown }> {
   const config = await getPricingConfig();
-  const breakdown = calculateSmartPrice(input, config);
+  const { resolveRouteDistanceKm } = await import("@/lib/pricing-distance");
+  const route = await resolveRouteDistanceKm({
+    pickupProvince: input.pickupProvince,
+    dropoffProvince: input.dropoffProvince,
+    pickupCity: input.pickupCity,
+    dropoffCity: input.dropoffCity,
+    pickupLat: input.pickupLat,
+    pickupLng: input.pickupLng,
+    dropoffLat: input.dropoffLat,
+    dropoffLng: input.dropoffLng,
+    stops: input.stops,
+  });
+  const breakdown = calculateSmartPrice(
+    {
+      ...input,
+      distanceKm: route.km,
+      distanceSource: route.source,
+    },
+    config,
+  );
   return { total: breakdown.total, breakdown };
 }
 
 export function generateBookingReference(): string {
   const part = Date.now().toString(36).toUpperCase().slice(-5);
-  return `LS-${part}`;
+  return `FM-${part}`;
 }

@@ -27,6 +27,9 @@ export async function POST(request: Request) {
     const token = await createSession(user.id);
     await setSessionCookie(token);
 
+    const { activatePendingBusinessInvites } = await import("@/lib/business-portal");
+    await activatePendingBusinessInvites(user.id, user.email);
+
     return NextResponse.json({
       user: {
         id: user.id,

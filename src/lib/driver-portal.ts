@@ -107,13 +107,31 @@ export async function getDriverEarningsStats(driverProfileId: string) {
       estimatedPrice: true,
       platformFee: true,
       finalPrice: true,
+      updatedAt: true,
     },
   });
 
-  const totalEarnings = completed.reduce(
-    (sum, b) => sum + (b.driverEarnings ?? b.estimatedPrice * 0.85),
-    0,
-  );
+  function bookingEarning(b: (typeof completed)[number]) {
+    return b.driverEarnings ?? b.estimatedPrice * 0.85;
+  }
+
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfWeek = new Date(startOfDay);
+  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const earningsToday = completed
+    .filter((b) => b.updatedAt >= startOfDay)
+    .reduce((sum, b) => sum + bookingEarning(b), 0);
+  const earningsThisWeek = completed
+    .filter((b) => b.updatedAt >= startOfWeek)
+    .reduce((sum, b) => sum + bookingEarning(b), 0);
+  const earningsThisMonth = completed
+    .filter((b) => b.updatedAt >= startOfMonth)
+    .reduce((sum, b) => sum + bookingEarning(b), 0);
+
+  const totalEarnings = completed.reduce((sum, b) => sum + bookingEarning(b), 0);
   const commissionDeducted = completed.reduce(
     (sum, b) => sum + (b.platformFee ?? (b.finalPrice ?? b.estimatedPrice) * 0.15),
     0,
@@ -135,6 +153,9 @@ export async function getDriverEarningsStats(driverProfileId: string) {
   return {
     completedCount: completed.length,
     totalEarnings,
+    earningsToday,
+    earningsThisWeek,
+    earningsThisMonth,
     commissionDeducted,
     pendingPayout,
     paidPayout,

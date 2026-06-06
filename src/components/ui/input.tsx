@@ -1,20 +1,21 @@
+import { forwardRef, type InputHTMLAttributes } from "react";
 import { clsx } from "clsx";
-import type { InputHTMLAttributes, SelectHTMLAttributes } from "react";
+import type { SelectHTMLAttributes } from "react";
 
-export function Input({
-  className,
-  ...props
-}: InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      className={clsx(
-        "w-full rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
+export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
+  function Input({ className, ...props }, ref) {
+    return (
+      <input
+        ref={ref}
+        className={clsx(
+          "w-full rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30",
+          className,
+        )}
+        {...props}
+      />
+    );
+  },
+);
 
 export function Label({
   children,

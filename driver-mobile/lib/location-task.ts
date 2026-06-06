@@ -1,7 +1,7 @@
 import * as Location from "expo-location";
 import * as TaskManager from "expo-task-manager";
 
-const TASK = "LOADSA_DRIVER_LOCATION";
+const TASK = "FLUXMOVE_DRIVER_LOCATION";
 let activeBookingId: string | null = null;
 
 export function setActiveBookingForGps(bookingId: string | null) {

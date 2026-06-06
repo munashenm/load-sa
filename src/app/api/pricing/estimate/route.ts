@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { estimateDeliveryTimes } from "@/lib/delivery-estimates";
 import { estimateBookingPriceFromDb } from "@/lib/pricing";
 import { calculateShuttlePrice } from "@/lib/shuttle-pricing";
 import type { SmartPricingInput } from "@/lib/smart-pricing";
@@ -39,6 +40,12 @@ export async function POST(request: Request) {
     vehicleType: body.vehicleType as VehicleType,
     pickupProvince: body.pickupProvince,
     dropoffProvince: body.dropoffProvince,
+    pickupCity: body.pickupCity,
+    dropoffCity: body.dropoffCity,
+    pickupLat: body.pickupLat != null ? Number(body.pickupLat) : undefined,
+    pickupLng: body.pickupLng != null ? Number(body.pickupLng) : undefined,
+    dropoffLat: body.dropoffLat != null ? Number(body.dropoffLat) : undefined,
+    dropoffLng: body.dropoffLng != null ? Number(body.dropoffLng) : undefined,
     weightKg: body.weightKg ? Number(body.weightKg) : undefined,
     urgency: (body.urgency as DeliveryUrgency) ?? "STANDARD",
     cargoSize: body.cargoSize,
@@ -56,5 +63,12 @@ export async function POST(request: Request) {
   }
 
   const { total, breakdown } = await estimateBookingPriceFromDb(input);
-  return NextResponse.json({ total, breakdown });
+  const stopCount = Array.isArray(body.stops) ? body.stops.length : 0;
+  const times = estimateDeliveryTimes({
+    urgency: input.urgency ?? "STANDARD",
+    distanceKm: breakdown.distanceKm,
+    scheduledAt: body.scheduledAt,
+    stopCount,
+  });
+  return NextResponse.json({ total, breakdown, times });
 }

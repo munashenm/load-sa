@@ -1,18 +1,16 @@
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
-  FlatList,
+  Alert,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { router, useFocusEffect } from "expo-router";
 import { api, clearToken } from "@/lib/api";
-import {
-  startBackgroundTracking,
-  stopBackgroundTracking,
-} from "@/lib/location-task";
+import { jobStatusLabel } from "@/lib/job-utils";
 
 type Job = {
   id: string;
@@ -21,6 +19,7 @@ type Job = {
   dropoffCity: string;
   estimatedPrice: number;
   status: string;
+  vehicleType?: string;
 };
 
 export default function JobsScreen() {
@@ -42,22 +41,24 @@ export default function JobsScreen() {
     }
   }, []);
 
-  useFocusEffect(() => {
-    load();
-  });
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load]),
+  );
 
   async function accept(id: string) {
-    await api(`/api/bookings/${id}/accept`, { method: "POST" });
-    load();
+    try {
+      await api(`/api/bookings/${id}/accept`, { method: "POST" });
+      router.push(`/job/${id}`);
+    } catch (e) {
+      Alert.alert("Could not accept", e instanceof Error ? e.message : "Try again");
+    }
   }
 
-  async function trackJob(id: string, start: boolean) {
-    if (start) {
-      await startBackgroundTracking(id);
-    } else {
-      await stopBackgroundTracking();
-    }
-    alert(start ? "Background GPS started" : "GPS stopped");
+  async function logout() {
+    await clearToken();
+    router.replace("/");
   }
 
   if (loading) {
@@ -69,57 +70,77 @@ export default function JobsScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.h1}>Open jobs</Text>
-      <FlatList
-        data={openJobs}
-        keyExtractor={(j) => j.id}
-        ListEmptyComponent={<Text style={styles.muted}>No open jobs</Text>}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <View style={styles.header}>
+        <Text style={styles.title}>FluxMove Driver</Text>
+        <View style={styles.headerActions}>
+          <Pressable onPress={() => router.push("/earnings")}>
+            <Text style={styles.link}>Earnings</Text>
+          </Pressable>
+          <Pressable onPress={logout}>
+            <Text style={styles.logout}>Sign out</Text>
+          </Pressable>
+        </View>
+      </View>
+
+      <Text style={styles.h1}>Available jobs</Text>
+      {openJobs.length === 0 ? (
+        <Text style={styles.muted}>
+          No jobs matching your vehicle — go online on the web driver hub first.
+        </Text>
+      ) : (
+        openJobs.map((item) => (
+          <View key={item.id} style={styles.card}>
             <Text style={styles.ref}>{item.reference}</Text>
             <Text style={styles.route}>
               {item.pickupCity} → {item.dropoffCity}
             </Text>
-            <Text style={styles.price}>R {item.estimatedPrice}</Text>
+            <Text style={styles.price}>R {item.estimatedPrice.toFixed(0)}</Text>
             <Pressable style={styles.btn} onPress={() => accept(item.id)}>
-              <Text style={styles.btnText}>Accept</Text>
+              <Text style={styles.btnText}>Accept job</Text>
             </Pressable>
           </View>
-        )}
-      />
+        ))
+      )}
 
-      <Text style={[styles.h1, { marginTop: 24 }]}>My jobs</Text>
-      <FlatList
-        data={myJobs}
-        keyExtractor={(j) => j.id}
-        ListEmptyComponent={<Text style={styles.muted}>No active jobs</Text>}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
+      <Text style={[styles.h1, { marginTop: 24 }]}>Active deliveries</Text>
+      {myJobs.length === 0 ? (
+        <Text style={styles.muted}>No active deliveries</Text>
+      ) : (
+        myJobs.map((item) => (
+          <Pressable
+            key={item.id}
+            style={styles.card}
+            onPress={() => router.push(`/job/${item.id}`)}
+          >
             <Text style={styles.ref}>{item.reference}</Text>
             <Text style={styles.route}>
               {item.pickupCity} → {item.dropoffCity}
             </Text>
-            <Text style={styles.muted}>Status: {item.status}</Text>
-            {item.status !== "DELIVERED" && item.status !== "CANCELLED" && (
-              <Pressable
-                style={[styles.btn, styles.btnSecondary]}
-                onPress={() => trackJob(item.id, true)}
-              >
-                <Text style={styles.btnTextDark}>Start background GPS</Text>
-              </Pressable>
-            )}
-          </View>
-        )}
-      />
-    </View>
+            <Text style={styles.muted}>{jobStatusLabel(item.status)}</Text>
+            <Text style={styles.openHint}>Tap for navigation, GPS & proof →</Text>
+          </Pressable>
+        ))
+      )}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: "center", backgroundColor: "#020617" },
-  container: { flex: 1, padding: 16, backgroundColor: "#020617" },
-  h1: { color: "#fff", fontSize: 18, fontWeight: "600", marginBottom: 8 },
+  container: { flex: 1, backgroundColor: "#020617" },
+  content: { padding: 16, paddingBottom: 32 },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  headerActions: { flexDirection: "row", gap: 16, alignItems: "center" },
+  title: { color: "#fff", fontSize: 20, fontWeight: "700" },
+  link: { color: "#38bdf8", fontSize: 14 },
+  logout: { color: "#94a3b8", fontSize: 14 },
+  h1: { color: "#fff", fontSize: 16, fontWeight: "600", marginBottom: 8 },
   muted: { color: "#64748b", marginBottom: 12 },
   card: {
     backgroundColor: "#0f172a",
@@ -139,7 +160,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     alignItems: "center",
   },
-  btnSecondary: { backgroundColor: "#334155" },
   btnText: { color: "#020617", fontWeight: "600" },
-  btnTextDark: { color: "#fff", fontWeight: "600" },
+  openHint: { color: "#38bdf8", fontSize: 12, marginTop: 8 },
 });

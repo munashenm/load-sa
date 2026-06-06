@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUserFromRequest } from "@/lib/auth-request";
+import { maskContactForBooking } from "@/lib/chat-access";
 import { db } from "@/lib/db";
 
 export async function GET(
@@ -34,5 +35,19 @@ export async function GET(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  return NextResponse.json({ booking });
+  const customer = maskContactForBooking(
+    booking.customer,
+    user.role,
+    booking.paymentStatus,
+    booking.customerId === user.id,
+  );
+
+  return NextResponse.json({
+    booking: {
+      ...booking,
+      customer: customer
+        ? { id: customer.id, fullName: customer.fullName, phone: customer.phone }
+        : booking.customer,
+    },
+  });
 }

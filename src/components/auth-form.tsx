@@ -12,9 +12,10 @@ function safeNextPath(next: string | null): string | null {
   return next;
 }
 
-function pathForRole(role: string, next: string | null): string {
+function pathForRole(role: string, next: string | null, businessSignup?: boolean): string {
   const safe = safeNextPath(next);
   if (safe) return safe;
+  if (businessSignup && role === "CUSTOMER") return "/business/setup";
   if (role === "DRIVER") return "/driver";
   if (role === "ADMIN") return "/admin";
   return "/customer";
@@ -65,7 +66,8 @@ export function AuthForm({ mode }: { mode: Mode }) {
       return;
     }
 
-    const dest = pathForRole(data.user.role, next);
+    const businessSignup = searchParams.get("business") === "1";
+    const dest = pathForRole(data.user.role, next, businessSignup);
     if (data.user.role !== "CUSTOMER" && safeNextPath(next) === "/book") {
       setError("Book deliveries with a customer account. Drivers use the driver hub.");
       return;
@@ -94,7 +96,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
               name="role"
               required
               defaultValue={
-                searchParams.get("role") === "driver" ? "DRIVER" : "CUSTOMER"
+                searchParams.get("role") === "driver"
+                  ? "DRIVER"
+                  : searchParams.get("business") === "1"
+                    ? "CUSTOMER"
+                    : "CUSTOMER"
               }
               className="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-2.5 text-sm text-slate-100"
             >

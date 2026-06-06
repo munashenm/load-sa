@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { DeliveryTrackingTimeline } from "@/components/tracking/delivery-tracking-timeline";
 import { BookingChat } from "@/components/chat/booking-chat";
 import { ComplaintForm } from "@/components/complaints/complaint-form";
 import { BookingSummaryCard } from "@/components/booking-summary";
@@ -46,6 +47,22 @@ export default async function CustomerBookingDetailPage({
 
       <div className="mt-6">
         <BookingSummaryCard booking={booking} showActions />
+      </div>
+
+      <div className="mt-6 rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+        <h2 className="font-semibold text-white">Tracking</h2>
+        <div className="mt-4">
+          <DeliveryTrackingTimeline
+            status={booking.status as BookingStatus}
+            paymentStatus={booking.paymentStatus}
+          />
+        </div>
+        <Link
+          href={`/track/${booking.id}`}
+          className="mt-4 inline-block text-sm text-amber-400 hover:underline"
+        >
+          Open live map →
+        </Link>
       </div>
 
       {booking.driver && (

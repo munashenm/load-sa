@@ -5,15 +5,18 @@ import { AuthForm } from "@/components/auth-form";
 export default async function RegisterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ role?: string }>;
+  searchParams: Promise<{ role?: string; business?: string }>;
 }) {
   const params = await searchParams;
+  const isBusiness = params.role === "customer" && params.business === "1";
   const hint =
     params.role === "driver"
       ? "Register as a driver to earn on your routes."
-      : params.role === "customer"
-        ? "Register to book deliveries nationwide."
-        : "Join as a customer or verified driver.";
+      : isBusiness
+        ? "Register to set up your FluxMove business account."
+        : params.role === "customer"
+          ? "Register to book deliveries nationwide."
+          : "Join as a customer or verified driver.";
 
   return (
     <div className="mx-auto max-w-md px-4 py-12">

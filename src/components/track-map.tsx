@@ -38,6 +38,17 @@ export function TrackMap({
     return [lat, lng] as [number, number];
   }, [pickup, dropoff, driver]);
 
+  const zoom = useMemo(() => {
+    const span = Math.max(
+      Math.abs(pickup.lat - dropoff.lat),
+      Math.abs(pickup.lng - dropoff.lng),
+    );
+    if (span < 0.02) return 14;
+    if (span < 0.08) return 12;
+    if (span < 0.3) return 10;
+    return 8;
+  }, [pickup, dropoff]);
+
   const line = useMemo(
     () =>
       [
@@ -62,7 +73,7 @@ export function TrackMap({
   return (
     <MapContainer
       center={center}
-      zoom={8}
+      zoom={zoom}
       scrollWheelZoom={false}
       className="h-72 w-full rounded-xl z-0"
     >

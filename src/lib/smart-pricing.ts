@@ -16,12 +16,23 @@ export type DeliveryStop = {
   city: string;
   province: string;
   label?: string;
+  lat?: number;
+  lng?: number;
 };
 
 export type SmartPricingInput = {
   vehicleType: VehicleType;
   pickupProvince: string;
   dropoffProvince: string;
+  pickupCity?: string;
+  dropoffCity?: string;
+  pickupLat?: number | null;
+  pickupLng?: number | null;
+  dropoffLat?: number | null;
+  dropoffLng?: number | null;
+  /** Pre-resolved route distance (km). Falls back to province estimate when omitted. */
+  distanceKm?: number;
+  distanceSource?: "google" | "coords" | "province";
   weightKg?: number | null;
   urgency?: DeliveryUrgency;
   cargoSize?: string | null;
@@ -88,14 +99,22 @@ export function calculateSmartPrice(
   input: SmartPricingInput,
   config: PricingConfig = DEFAULT_PRICING_CONFIG,
 ): PriceBreakdown {
-  const km = estimateDistanceKm(input.pickupProvince, input.dropoffProvince);
+  const km =
+    input.distanceKm ??
+    estimateDistanceKm(input.pickupProvince, input.dropoffProvince);
+  const distanceLabel =
+    input.distanceSource === "google"
+      ? `Route distance (${km} km)`
+      : input.distanceSource === "coords"
+        ? `Estimated route (${km} km)`
+        : `Distance (~${km} km)`;
   const rates = config.vehicleRates[input.vehicleType];
   const lines: PriceLine[] = [];
 
   const baseFare = rates.base;
   const distanceFare = Math.round(rates.perKm * km);
   lines.push({ label: `${input.vehicleType} base fare`, amount: baseFare });
-  lines.push({ label: `Distance (~${km} km)`, amount: distanceFare });
+  lines.push({ label: distanceLabel, amount: distanceFare });
 
   let subtotal = baseFare + distanceFare + config.baseFee * 0.1;
 

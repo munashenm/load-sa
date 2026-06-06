@@ -2,10 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 const iosUrl =
-  process.env.NEXT_PUBLIC_IOS_APP_URL ?? "https://apps.apple.com/app/load-sa";
+  process.env.NEXT_PUBLIC_IOS_APP_URL ?? "https://apps.apple.com/app/fluxmove";
 const androidUrl =
   process.env.NEXT_PUBLIC_ANDROID_APP_URL ??
-  "https://play.google.com/store/apps/details?id=za.loadsa.driver";
+  "https://play.google.com/store/apps/details?id=za.fluxmove.driver";
 
 export function SiteFooter() {
   return (
@@ -13,7 +13,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="text-center sm:text-left">
-            <p className="font-semibold text-slate-300">Load SA</p>
+            <p className="font-semibold text-slate-300">FluxMove</p>
             <p className="mt-1 text-sm text-slate-500">
               Serving all 9 provinces · Prices in ZAR
             </p>
@@ -59,7 +59,7 @@ export function SiteFooter() {
         </div>
 
         <p className="mt-8 text-center text-xs text-slate-600">
-          © {new Date().getFullYear()} Load SA. All rights reserved.
+          © {new Date().getFullYear()} FluxMove. All rights reserved.
         </p>
       </div>
     </footer>

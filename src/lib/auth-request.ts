@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import type { User } from "@prisma/client";
 import { db } from "@/lib/db";
-import { SESSION_COOKIE } from "@/lib/auth";
+import { SESSION_COOKIE, LEGACY_SESSION_COOKIES } from "@/lib/auth";
 
 export async function getTokenFromRequest(
   request?: Request,
@@ -13,7 +13,13 @@ export async function getTokenFromRequest(
     }
   }
   const cookieStore = await cookies();
-  return cookieStore.get(SESSION_COOKIE)?.value;
+  const primary = cookieStore.get(SESSION_COOKIE)?.value;
+  if (primary) return primary;
+  for (const name of LEGACY_SESSION_COOKIES) {
+    const legacy = cookieStore.get(name)?.value;
+    if (legacy) return legacy;
+  }
+  return undefined;
 }
 
 export async function getUserFromToken(

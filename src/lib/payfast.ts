@@ -75,7 +75,7 @@ export function buildPayFastPaymentFields(input: {
     notify_url: `${config.appUrl}/api/payfast/notify`,
     email_address: input.customerEmail,
     name_first: input.customerName.split(" ")[0] ?? "Customer",
-    name_last: input.customerName.split(" ").slice(1).join(" ") || "LoadSA",
+    name_last: input.customerName.split(" ").slice(1).join(" ") || "FluxMove",
     m_payment_id: input.reference,
     amount,
     item_name: input.itemName,

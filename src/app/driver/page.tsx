@@ -93,6 +93,22 @@ export default async function DriverOverviewPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <StatCard
+          label="Earnings today"
+          value={formatZAR(earnings.earningsToday)}
+          href="/driver/earnings"
+          accent="text-emerald-400"
+        />
+        <StatCard
+          label="Earnings this week"
+          value={formatZAR(earnings.earningsThisWeek)}
+          href="/driver/earnings"
+        />
+        <StatCard
+          label="Earnings this month"
+          value={formatZAR(earnings.earningsThisMonth)}
+          href="/driver/earnings"
+        />
+        <StatCard
           label="Available jobs"
           value={String(availableJobs.length)}
           href="/driver/jobs"
@@ -111,7 +127,6 @@ export default async function DriverOverviewPage() {
           label="Total earnings"
           value={formatZAR(earnings.totalEarnings)}
           href="/driver/earnings"
-          accent="text-emerald-400"
         />
         <StatCard
           label="Pending payouts"

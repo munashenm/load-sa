@@ -11,8 +11,8 @@ import { router } from "expo-router";
 import { getToken, mobileLogin } from "@/lib/api";
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState("driver@demo.co.za");
-  const [password, setPassword] = useState("demo12345");
+  const [email, setEmail] = useState(__DEV__ ? "driver@demo.co.za" : "");
+  const [password, setPassword] = useState(__DEV__ ? "demo12345" : "");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,7 +46,7 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Load SA Driver</Text>
+      <Text style={styles.title}>Fluxmove Driver</Text>
       <Text style={styles.sub}>Sign in to accept jobs & share GPS</Text>
       <TextInput
         style={styles.input}

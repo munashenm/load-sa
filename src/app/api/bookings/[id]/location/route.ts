@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getSessionUserFromRequest } from "@/lib/auth-request";
 import { db } from "@/lib/db";
 import { notifyCustomer } from "@/lib/notifications";
-import { resolveCityCoords } from "@/lib/sa-data";
+import { resolveBookingCoords } from "@/lib/sa-data";
 
 function distanceKm(
   lat1: number,
@@ -42,7 +42,7 @@ export async function PATCH(
     return NextResponse.json({ error: "lat and lng required" }, { status: 400 });
   }
 
-  const drop = resolveCityCoords(booking.dropoffCity, booking.dropoffProvince);
+  const { dropoff: drop } = resolveBookingCoords(booking);
   const km = distanceKm(lat, lng, drop.lat, drop.lng);
 
   const updated = await db.booking.update({
