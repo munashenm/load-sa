@@ -75,6 +75,7 @@ export function BookingWizard({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState<string | null>(null);
+  const [reference, setReference] = useState<string | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
 
   const validStops: DeliveryStop[] = stops
