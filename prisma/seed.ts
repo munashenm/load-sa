@@ -23,7 +23,7 @@ async function main() {
 
   await db.user.upsert({
     where: { email: "admin@fluxmove.co.za" },
-    update: {},
+    update: { passwordHash, role: "ADMIN" },
     create: {
       email: "admin@fluxmove.co.za",
       passwordHash,
@@ -35,7 +35,7 @@ async function main() {
 
   await db.user.upsert({
     where: { email: "customer@demo.co.za" },
-    update: {},
+    update: { passwordHash, role: "CUSTOMER" },
     create: {
       email: "customer@demo.co.za",
       passwordHash,
@@ -47,7 +47,7 @@ async function main() {
 
   const driver = await db.user.upsert({
     where: { email: "driver@demo.co.za" },
-    update: {},
+    update: { passwordHash, role: "DRIVER" },
     create: {
       email: "driver@demo.co.za",
       passwordHash,

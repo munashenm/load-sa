@@ -81,13 +81,28 @@ export async function requireUser(roles?: UserRole[], loginNext?: string) {
 
 export async function setSessionCookie(token: string): Promise<void> {
   const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE, token, {
+  cookieStore.set(SESSION_COOKIE, token, sessionCookieOptions());
+}
+
+/** Set session cookie on a Route Handler response (required for reliable login on Railway). */
+export function applySessionCookie<T extends Response>(response: T, token: string): T {
+  response.headers.append(
+    "Set-Cookie",
+    `${SESSION_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_DAYS * 24 * 60 * 60}${
+      process.env.NODE_ENV === "production" ? "; Secure" : ""
+    }`,
+  );
+  return response;
+}
+
+function sessionCookieOptions() {
+  return {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "lax" as const,
     path: "/",
     maxAge: SESSION_DAYS * 24 * 60 * 60,
-  });
+  };
 }
 
 export async function revokeSessionFromToken(token: string | undefined): Promise<void> {

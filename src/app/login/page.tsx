@@ -9,6 +9,7 @@ export default async function LoginPage({
 }) {
   const { next } = await searchParams;
   const isBook = next === "/book";
+  const isAdmin = next === "/admin" || next?.startsWith("/admin/");
 
   return (
     <div className="mx-auto max-w-md px-4 py-12">
@@ -16,7 +17,9 @@ export default async function LoginPage({
       <p className="mt-2 text-slate-400">
         {isBook
           ? "Sign in with a customer account to book a delivery."
-          : "Welcome back to FluxMove."}{" "}
+          : isAdmin
+            ? "Sign in with your admin account."
+            : "Welcome back to FluxMove."}{" "}
         <Link href="/register?role=customer" className="text-amber-400 hover:underline">
           Create account
         </Link>
@@ -24,6 +27,11 @@ export default async function LoginPage({
       {isBook && (
         <p className="mt-2 text-xs text-amber-200/80">
           Demo customer: customer@demo.co.za / demo12345
+        </p>
+      )}
+      {isAdmin && (
+        <p className="mt-2 text-xs text-amber-200/80">
+          Demo admin: admin@fluxmove.co.za / demo12345
         </p>
       )}
       <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
