@@ -22,7 +22,7 @@ export default async function PayReturnPage({
           verified.amount,
           verified.providerRef,
         );
-        redirect(`/track/${bookingId}?paid=1`);
+        redirect(`/pay/success?booking=${bookingId}`);
       }
     }
 
@@ -45,7 +45,7 @@ export default async function PayReturnPage({
   }
 
   if (booking) {
-    redirect(`/track/${booking}?paid=pending`);
+    redirect(`/pay/success?booking=${booking}`);
   }
 
   return (

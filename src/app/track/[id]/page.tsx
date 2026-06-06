@@ -9,8 +9,8 @@ export default async function TrackPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const user = await requireUser(["CUSTOMER", "DRIVER", "ADMIN"]);
   const { id } = await params;
+  const user = await requireUser(["CUSTOMER", "DRIVER", "ADMIN"], `/track/${id}`);
 
   const booking = await db.booking.findUnique({ where: { id } });
   if (!booking) {

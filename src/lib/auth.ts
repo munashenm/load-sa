@@ -86,9 +86,10 @@ export async function setSessionCookie(token: string): Promise<void> {
 
 /** Set session cookie on a Route Handler response (required for reliable login on Railway). */
 export function applySessionCookie<T extends Response>(response: T, token: string): T {
+  const sameSite = process.env.NODE_ENV === "production" ? "None" : "Lax";
   response.headers.append(
     "Set-Cookie",
-    `${SESSION_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_DAYS * 24 * 60 * 60}${
+    `${SESSION_COOKIE}=${token}; Path=/; HttpOnly; SameSite=${sameSite}; Max-Age=${SESSION_DAYS * 24 * 60 * 60}${
       process.env.NODE_ENV === "production" ? "; Secure" : ""
     }`,
   );
@@ -99,7 +100,10 @@ function sessionCookieOptions() {
   return {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax" as const,
+    // None keeps session when returning from Paystack (cross-site redirect).
+    sameSite: (process.env.NODE_ENV === "production" ? "none" : "lax") as
+      | "lax"
+      | "none",
     path: "/",
     maxAge: SESSION_DAYS * 24 * 60 * 60,
   };
