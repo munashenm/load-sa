@@ -157,20 +157,20 @@ export async function verifyPaystackTransaction(
 
   if (!result.ok || !result.data.data) return null;
 
-  const json = result.data;
+  const data = result.data.data;
 
   const status =
-    json.data.status === "success"
+    data.status === "success"
       ? "success"
-      : json.data.status === "failed"
+      : data.status === "failed"
         ? "failed"
         : "pending";
 
   return {
     status,
-    amount: subunitsToZar(json.data.amount),
-    providerRef: json.data.reference,
-    bookingId: json.data.metadata?.booking_id,
+    amount: subunitsToZar(data.amount),
+    providerRef: data.reference,
+    bookingId: data.metadata?.booking_id,
   };
 }
 
