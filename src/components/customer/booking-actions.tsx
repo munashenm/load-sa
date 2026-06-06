@@ -41,7 +41,7 @@ export function BookingActions({
       </Link>
       {paymentStatus !== "PAID" && (
         <Button className="!py-2 text-xs" disabled={paying} onClick={pay}>
-          {paying ? "Redirecting…" : `Pay ${formatZAR(amount)} with PayFast`}
+          {paying ? "Redirecting…" : `Pay ${formatZAR(amount)} with Paystack`}
         </Button>
       )}
       {paymentStatus === "PAID" && (

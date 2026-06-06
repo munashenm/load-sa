@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { getSessionUserFromRequest } from "@/lib/auth-request";
 import { db } from "@/lib/db";
-import { buildPayFastPaymentFields, getPayFastConfig } from "@/lib/payfast";
+import {
+  initializePaystackTransaction,
+  isPaystackConfigured,
+} from "@/lib/paystack";
 
 export async function POST(
   request: Request,
@@ -27,12 +30,11 @@ export async function POST(
     return NextResponse.json({ error: "Already paid" }, { status: 400 });
   }
 
-  const config = getPayFastConfig();
-  if (!config) {
+  if (!isPaystackConfigured()) {
     return NextResponse.json(
       {
         error:
-          "PayFast not configured. Set PAYFAST_MERCHANT_ID, PAYFAST_MERCHANT_KEY, NEXT_PUBLIC_APP_URL.",
+          "Paystack not configured. Set PAYSTACK_SECRET_KEY and NEXT_PUBLIC_APP_URL.",
       },
       { status: 503 },
     );
@@ -40,32 +42,37 @@ export async function POST(
 
   const amount = booking.estimatedPrice;
 
+  const init = await initializePaystackTransaction({
+    bookingId: id,
+    reference: booking.reference,
+    amount,
+    customerEmail: booking.customer.email,
+    itemName: `FluxMove ${booking.reference}`,
+  });
+
+  if ("error" in init) {
+    return NextResponse.json({ error: init.error }, { status: 502 });
+  }
+
   await db.payment.upsert({
     where: { bookingId: id },
     create: {
       bookingId: id,
       amount,
       status: "PENDING",
-      provider: "PAYFAST",
+      provider: "PAYSTACK",
+      providerRef: init.reference,
     },
-    update: { status: "PENDING", amount },
+    update: {
+      status: "PENDING",
+      amount,
+      provider: "PAYSTACK",
+      providerRef: init.reference,
+    },
   });
-
-  const payment = buildPayFastPaymentFields({
-    bookingId: id,
-    reference: booking.reference,
-    amount,
-    customerEmail: booking.customer.email,
-    customerName: booking.customer.fullName,
-    itemName: `FluxMove ${booking.reference}`,
-  });
-
-  if (!payment) {
-    return NextResponse.json({ error: "Payment setup failed" }, { status: 500 });
-  }
 
   return NextResponse.json({
-    checkoutUrl: `/pay/checkout/${id}`,
-    payfast: payment,
+    checkoutUrl: init.authorizationUrl,
+    reference: init.reference,
   });
 }

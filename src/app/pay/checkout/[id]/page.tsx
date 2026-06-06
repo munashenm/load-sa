@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
-import { PayFastAutoSubmitForm } from "@/components/payfast-form";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { buildPayFastPaymentFields, getPayFastConfig } from "@/lib/payfast";
-import { formatZAR } from "@/lib/sa-data";
+import {
+  initializePaystackTransaction,
+  isPaystackConfigured,
+} from "@/lib/paystack";
 
 export default async function PayCheckoutPage({
   params,
@@ -26,34 +27,46 @@ export default async function PayCheckoutPage({
     redirect(`/track/${id}`);
   }
 
-  if (!getPayFastConfig()) {
+  if (!isPaystackConfigured()) {
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center">
-        <p className="text-red-400">PayFast is not configured on this server.</p>
+        <p className="text-red-400">Paystack is not configured on this server.</p>
       </div>
     );
   }
 
-  const payment = buildPayFastPaymentFields({
+  const init = await initializePaystackTransaction({
     bookingId: id,
     reference: booking.reference,
     amount: booking.estimatedPrice,
     customerEmail: booking.customer.email,
-    customerName: booking.customer.fullName,
     itemName: `FluxMove delivery ${booking.reference}`,
   });
 
-  if (!payment) {
-    redirect("/book");
+  if ("error" in init) {
+    return (
+      <div className="mx-auto max-w-md px-4 py-16 text-center">
+        <p className="text-red-400">{init.error}</p>
+      </div>
+    );
   }
 
-  return (
-    <div className="mx-auto max-w-md px-4 py-16 text-center">
-      <h1 className="text-xl font-bold text-white">Redirecting to PayFast</h1>
-      <p className="mt-2 text-slate-400">
-        Pay {formatZAR(booking.estimatedPrice)} securely. Please wait…
-      </p>
-      <PayFastAutoSubmitForm action={payment.action} fields={payment.fields} />
-    </div>
-  );
+  await db.payment.upsert({
+    where: { bookingId: id },
+    create: {
+      bookingId: id,
+      amount: booking.estimatedPrice,
+      status: "PENDING",
+      provider: "PAYSTACK",
+      providerRef: init.reference,
+    },
+    update: {
+      status: "PENDING",
+      amount: booking.estimatedPrice,
+      provider: "PAYSTACK",
+      providerRef: init.reference,
+    },
+  });
+
+  redirect(init.authorizationUrl);
 }

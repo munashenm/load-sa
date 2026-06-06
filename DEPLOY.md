@@ -66,8 +66,8 @@ On the **web service** (not the database), add:
 |----------|---------|
 | `NEXT_PUBLIC_GOOGLE_MAPS_KEY` | Address autocomplete (browser) |
 | `GOOGLE_MAPS_API_KEY` | Route distance pricing (server) |
-| `PAYFAST_MERCHANT_ID`, `PAYFAST_MERCHANT_KEY`, `PAYFAST_PASSPHRASE` | Payments |
-| `PAYFAST_SANDBOX` | `true` for testing |
+| `PAYSTACK_SECRET_KEY` | Paystack secret key (test or live) |
+| `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` | Paystack public key (optional, for future inline checkout) |
 | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Proof photos (web + mobile) |
 | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_SMS_FROM` | SMS notifications |
 | `TWILIO_WHATSAPP_FROM`, `SMS_ENABLED`, `WHATSAPP_ENABLED` | WhatsApp notifications |

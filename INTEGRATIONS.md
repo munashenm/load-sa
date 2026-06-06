@@ -1,22 +1,23 @@
 # Fluxmove integrations setup
 
-## PayFast
+## Paystack
 
-1. Register at [payfast.co.za](https://www.payfast.co.za) (use **Sandbox** for testing).
-2. Railway / `.env` variables:
+1. Register at [paystack.com](https://paystack.com) and enable **South Africa (ZAR)** on your account.
+2. Use **Test mode** keys for development (`sk_test_…` / `pk_test_…`).
+3. Railway / `.env` variables:
 
 ```
-PAYFAST_MERCHANT_ID=10000100
-PAYFAST_MERCHANT_KEY=46f0cd694581a
-PAYFAST_PASSPHRASE=your_passphrase
-PAYFAST_SANDBOX=true
+PAYSTACK_SECRET_KEY=sk_test_xxxxxxxx
+NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_test_xxxxxxxx
 NEXT_PUBLIC_APP_URL=https://fluxmove.co.za
 ```
 
-3. In PayFast dashboard, enable **ITN** and ensure notify URL is reachable:  
-   `https://fluxmove.co.za/api/payfast/notify`
+4. In Paystack dashboard → **Settings → API Keys & Webhooks**, set the webhook URL:  
+   `https://fluxmove.co.za/api/paystack/webhook`
 
-4. Customer flow: **Pay with PayFast** → redirect → return URL → ITN confirms payment.
+5. Customer flow: **Pay with Paystack** → redirect to Paystack checkout → return URL verifies payment → webhook confirms asynchronously.
+
+6. Supported events: `charge.success` (handled automatically).
 
 ## Google Maps (address autocomplete & routing)
 
@@ -83,7 +84,7 @@ NEXT_PUBLIC_APP_URL=https://fluxmove.co.za
 | Event | Channels |
 |-------|----------|
 | Booking created | SMS + WhatsApp confirmation with track link |
-| PayFast payment complete | Delivery OTP + track link |
+| Paystack payment complete | Delivery OTP + track link |
 | Business booking (monthly invoice) | Confirmation + OTP immediately |
 | Status updates (driver assigned, in transit, delivered) | SMS + WhatsApp |
 

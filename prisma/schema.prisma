@@ -191,7 +191,7 @@ model Payment {
   amount    Float
   currency  String   @default("ZAR")
   status    String   @default("PENDING")
-  provider  String   @default("PAYFAST")
+  provider  String   @default("PAYSTACK")
   providerRef String?
   paidAt    DateTime?
   createdAt DateTime @default(now())

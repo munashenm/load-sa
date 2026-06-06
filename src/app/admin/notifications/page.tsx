@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { isCloudinaryConfigured } from "@/lib/cloudinary";
 import { getMessagingConfig, isMessagingActive } from "@/lib/messaging";
+import { isPaystackConfigured } from "@/lib/paystack";
 
 function StatusBadge({ ok, label }: { ok: boolean; label: string }) {
   return (
@@ -18,6 +19,7 @@ export default async function AdminNotificationsPage() {
   const messaging = getMessagingConfig();
   const messagingActive = isMessagingActive();
   const cloudinaryOk = isCloudinaryConfigured();
+  const paystackOk = isPaystackConfigured();
 
   const notifications = await db.notification.findMany({
     orderBy: { createdAt: "desc" },
@@ -111,6 +113,21 @@ export default async function AdminNotificationsPage() {
               cloudinary.com
             </a>
             .
+          </p>
+        )}
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="text-sm font-semibold text-white">Payments (Paystack)</h2>
+          <StatusBadge ok={paystackOk} label={paystackOk ? "Configured" : "Missing"} />
+        </div>
+        {!paystackOk && (
+          <p className="mt-4 text-xs text-slate-500">
+            Add PAYSTACK_SECRET_KEY and NEXT_PUBLIC_APP_URL in Railway → Variables.
+            Set webhook URL to{" "}
+            <code className="text-amber-400">/api/paystack/webhook</code>. See
+            INTEGRATIONS.md.
           </p>
         )}
       </div>

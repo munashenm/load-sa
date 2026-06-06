@@ -19,7 +19,7 @@ const STEPS = [
   {
     icon: CreditCard,
     title: "Pay securely",
-    text: "Confirm with PayFast. Your booking is sent to verified drivers instantly.",
+    text: "Confirm with Paystack. Your booking is sent to verified drivers instantly.",
   },
   {
     icon: UserCheck,
