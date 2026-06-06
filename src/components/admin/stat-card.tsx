@@ -13,14 +13,16 @@ export function StatCard({
   value: string | number;
   href?: string;
   icon?: LucideIcon;
-  accent?: "amber" | "emerald" | "blue" | "slate";
+  accent?: "amber" | "emerald" | "blue" | "slate" | "red";
 }) {
   const border =
     accent === "emerald"
       ? "hover:border-emerald-500/40"
       : accent === "blue"
         ? "hover:border-blue-500/40"
-        : "hover:border-amber-500/40";
+        : accent === "red"
+          ? "hover:border-red-500/40"
+          : "hover:border-amber-500/40";
 
   const inner = (
     <div

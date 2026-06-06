@@ -155,12 +155,12 @@ export default async function AdminAnalyticsPage() {
 
       <p className="mt-8 text-sm text-slate-600">
         Need raw data?{" "}
-        <Link href="/admin/bookings" className="text-amber-400 hover:underline">
-          Export from bookings
+        <Link href="/admin/reports" className="text-amber-400 hover:underline">
+          Export reports
         </Link>{" "}
         or review{" "}
-        <Link href="/admin/heatmap" className="text-amber-400 hover:underline">
-          driver heatmap
+        <Link href="/admin/live-map" className="text-amber-400 hover:underline">
+          live delivery map
         </Link>
         .
       </p>

@@ -122,9 +122,9 @@ export function DriversTable({ drivers }: { drivers: AdminDriverRow[] }) {
                         Activate
                       </Button>
                     )}
-                    <Link href={`/admin/drivers/${d.id}`}>
+        <Link href={`/admin/drivers/${d.id}`}>
                       <Button variant="ghost" className="!py-1 !text-xs">
-                        View
+                        Review docs
                       </Button>
                     </Link>
                   </div>
