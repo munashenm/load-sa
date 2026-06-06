@@ -16,7 +16,7 @@ export async function GET(
   const booking = await db.booking.findUnique({
     where: { id },
     include: {
-      customer: { select: { id: true, fullName: true } },
+      customer: { select: { id: true, fullName: true, phone: true } },
       driver: { include: { user: { select: { fullName: true, phone: true } } } },
       proofs: { orderBy: { createdAt: "desc" }, take: 5 },
       payment: true,
