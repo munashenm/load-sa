@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { isCloudinaryConfigured } from "@/lib/cloudinary";
 import { getMessagingConfig, isMessagingActive } from "@/lib/messaging";
 
 function StatusBadge({ ok, label }: { ok: boolean; label: string }) {
@@ -16,6 +17,7 @@ function StatusBadge({ ok, label }: { ok: boolean; label: string }) {
 export default async function AdminNotificationsPage() {
   const messaging = getMessagingConfig();
   const messagingActive = isMessagingActive();
+  const cloudinaryOk = isCloudinaryConfigured();
 
   const notifications = await db.notification.findMany({
     orderBy: { createdAt: "desc" },
@@ -87,6 +89,28 @@ export default async function AdminNotificationsPage() {
           <p className="mt-4 text-xs text-slate-500">
             Set Twilio env vars and enable SMS_ENABLED / WHATSAPP_ENABLED. See
             INTEGRATIONS.md.
+          </p>
+        )}
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="text-sm font-semibold text-white">Photo uploads (Cloudinary)</h2>
+          <StatusBadge ok={cloudinaryOk} label={cloudinaryOk ? "Configured" : "Missing"} />
+        </div>
+        {!cloudinaryOk && (
+          <p className="mt-4 text-xs text-slate-500">
+            Add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in
+            Railway → Variables, then redeploy. Get credentials from{" "}
+            <a
+              href="https://cloudinary.com"
+              className="text-amber-400 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              cloudinary.com
+            </a>
+            .
           </p>
         )}
       </div>

@@ -34,6 +34,28 @@ type StopDraft = {
   lng?: number;
 };
 
+function parseWeightKg(value: string): number | undefined {
+  const w = Number(value);
+  if (!Number.isFinite(w) || w <= 0) return undefined;
+  return Math.round(w);
+}
+
+function formatBookingError(data: unknown): string {
+  if (!data || typeof data !== "object") {
+    return "Could not create booking. Please try again.";
+  }
+  const body = data as { error?: unknown };
+  if (typeof body.error === "string") return body.error;
+  if (body.error && typeof body.error === "object") {
+    const fieldErrors = body.error as Record<string, string[] | undefined>;
+    const messages = Object.entries(fieldErrors).flatMap(([field, msgs]) =>
+      (msgs ?? []).map((m) => `${field.replace(/([A-Z])/g, " $1").toLowerCase()}: ${m}`),
+    );
+    if (messages.length > 0) return messages.join(" ");
+  }
+  return "Could not create booking. Check all fields.";
+}
+
 export function BookingWizard({
   businessId,
   monthlyInvoicing = false,
@@ -166,32 +188,61 @@ export function BookingWizard({
   }
 
   function canProceed(): boolean {
-    if (step === 0) return Boolean(pickupAddress && pickupCity);
-    if (step === 1) return Boolean(dropoffAddress && dropoffCity);
-    if (step === 3) return cargoDescription.trim().length > 2;
+    if (step === 0) {
+      return pickupAddress.trim().length >= 5 && pickupCity.trim().length >= 2;
+    }
+    if (step === 1) {
+      return dropoffAddress.trim().length >= 5 && dropoffCity.trim().length >= 2;
+    }
+    if (step === 3) return cargoDescription.trim().length >= 10;
     if (step === 5 && deliveryMode === "scheduled") return Boolean(scheduledAt);
     return true;
   }
 
+  function validateBeforeSubmit(): string | null {
+    if (pickupAddress.trim().length < 5) {
+      return "Pickup address must be at least 5 characters.";
+    }
+    if (dropoffAddress.trim().length < 5) {
+      return "Drop-off address must be at least 5 characters.";
+    }
+    if (cargoDescription.trim().length < 10) {
+      return "Describe what you are moving in at least 10 characters.";
+    }
+    if (weightKg && parseWeightKg(weightKg) === undefined) {
+      return "Enter a valid weight in kg (whole number greater than 0), or leave it blank.";
+    }
+    if (deliveryMode === "scheduled" && !scheduledAt) {
+      return "Choose a date and time for your scheduled delivery.";
+    }
+    return null;
+  }
+
   async function createBooking() {
     setError(null);
+    const validationError = validateBeforeSubmit();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setLoading(true);
     const effectiveUrgency = deliveryMode === "scheduled" ? "STANDARD" : urgency;
     const payload = {
-      pickupAddress,
-      pickupCity,
+      pickupAddress: pickupAddress.trim(),
+      pickupCity: pickupCity.trim(),
       pickupProvince,
       pickupLat,
       pickupLng,
-      dropoffAddress,
-      dropoffCity,
+      dropoffAddress: dropoffAddress.trim(),
+      dropoffCity: dropoffCity.trim(),
       dropoffProvince,
       dropoffLat,
       dropoffLng,
       vehicleType,
-      cargoDescription,
-      weightKg: weightKg ? Number(weightKg) : undefined,
-      cargoDimensions: cargoDimensions || undefined,
+      cargoDescription: cargoDescription.trim(),
+      weightKg: parseWeightKg(weightKg),
+      cargoDimensions: cargoDimensions.trim() || undefined,
       cargoImageUrl: cargoImageUrl || undefined,
       urgency: effectiveUrgency,
       scheduledAt: deliveryMode === "scheduled" ? scheduledAt : undefined,
@@ -212,7 +263,7 @@ export function BookingWizard({
     const data = await res.json();
     setLoading(false);
     if (!res.ok) {
-      setError("Could not create booking. Check all fields.");
+      setError(formatBookingError(data));
       return;
     }
     setBookingId(data.booking.id);
@@ -434,7 +485,7 @@ export function BookingWizard({
                 rows={4}
                 value={cargoDescription}
                 onChange={(e) => setCargoDescription(e.target.value)}
-                placeholder="Describe items, quantity, and any special handling"
+                placeholder="Describe items, quantity, and handling (at least 10 characters)"
                 required
               />
             </div>
@@ -465,7 +516,10 @@ export function BookingWizard({
       {step === 4 && (
         <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5">
           <h2 className="mb-4 text-lg font-semibold text-white">Step 5 — Upload photos</h2>
-          <p className="mb-4 text-sm text-slate-500">Help drivers prepare the right vehicle and equipment.</p>
+          <p className="mb-4 text-sm text-slate-500">
+            Optional — help drivers prepare the right vehicle. You can skip this step and
+            continue without a photo.
+          </p>
           <Input type="file" accept="image/*" disabled={uploading} onChange={onImageChange} />
           {uploading && <p className="mt-2 text-xs text-slate-400">Uploading…</p>}
           {cargoImageUrl && (

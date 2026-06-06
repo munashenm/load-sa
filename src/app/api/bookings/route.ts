@@ -62,14 +62,20 @@ export async function POST(request: Request) {
   const body = await request.json();
   const parsed = bookingSchema.safeParse(body);
   if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    const firstMessage = Object.values(fieldErrors).flat()[0];
     return NextResponse.json(
-      { error: parsed.error.flatten().fieldErrors },
+      {
+        error: firstMessage ?? "Invalid booking details",
+        fieldErrors,
+      },
       { status: 400 },
     );
   }
 
-  const data = parsed.data;
-  const { total, breakdown } = await estimateBookingPriceFromDb({
+  try {
+    const data = parsed.data;
+    const { total, breakdown } = await estimateBookingPriceFromDb({
     vehicleType: data.vehicleType,
     pickupProvince: data.pickupProvince,
     dropoffProvince: data.dropoffProvince,
@@ -122,4 +128,11 @@ export async function POST(request: Request) {
   await sendBookingConfirmation(user.id, booking.reference, booking.id);
 
   return NextResponse.json({ booking, breakdown });
+  } catch (err) {
+    console.error("[bookings POST]", err);
+    return NextResponse.json(
+      { error: "Server error while creating booking. Please try again." },
+      { status: 500 },
+    );
+  }
 }

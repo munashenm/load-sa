@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUserFromRequest } from "@/lib/auth-request";
-import { uploadImageBuffer } from "@/lib/cloudinary";
+import { isCloudinaryConfigured, uploadImageBuffer } from "@/lib/cloudinary";
 
 export async function POST(request: Request) {
   const user = await getSessionUserFromRequest(request);
@@ -48,12 +48,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Images only" }, { status: 400 });
   }
 
+  if (!isCloudinaryConfigured()) {
+    return NextResponse.json(
+      {
+        error:
+          "Photo uploads are not configured yet. Add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in Railway, then redeploy. You can skip the photo and continue booking.",
+      },
+      { status: 503 },
+    );
+  }
+
   try {
     const url = await uploadImageBuffer(buffer);
     return NextResponse.json({ url });
-  } catch {
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Cloudinary upload failed";
+    console.error("[upload]", message);
     return NextResponse.json(
-      { error: "Upload failed. Check Cloudinary env vars." },
+      { error: `Upload failed: ${message}` },
       { status: 503 },
     );
   }
